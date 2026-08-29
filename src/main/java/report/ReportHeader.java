@@ -41,6 +41,7 @@ public class ReportHeader {
     }
 
     public String getFiltrosAplicados(){
+
         return filtrosAplicados;
     }
 
