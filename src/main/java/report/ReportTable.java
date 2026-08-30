@@ -17,6 +17,7 @@ public class ReportTable {
         this.filas = new ArrayList<>();
     }
 
+    //agregar las filas respectivas de la matriz
     public void agregarFila(List<String> valores) {
         if (valores == null || valores.size() != encabezados.size()) {
             throw new IllegalArgumentException(
@@ -34,6 +35,7 @@ public class ReportTable {
         agregarFila(List.of(valores));
     }
 
+    //getters necesarios
     public List<String> getEncabezados() {
         return encabezados;
     }
