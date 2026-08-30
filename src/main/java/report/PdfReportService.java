@@ -1,5 +1,6 @@
 package report;
 
+//bibliotecas necesarias para generar el reporte como pdf.
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import com.lowagie.text.pdf.PdfPageEventHelper;
@@ -9,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 
+//fuentes y colores parte del reporte
 public class PdfReportService {
     private static final Font FUENTE_SISTEMA = new Font(Font.HELVETICA, 9, Font.ITALIC, Color.DARK_GRAY);
     private static final Font FUENTE_TITULO = new Font(Font.HELVETICA, 18, Font.BOLD, Color.BLUE);
@@ -18,16 +20,19 @@ public class PdfReportService {
     private static final Color COLOR_ENCABEZADO_TABLA = new Color(180, 0, 0);
     private static final Color COLOR_CELDA_OCUPADA = new Color(255, 245, 180);
 
+    //tabla
     public void generarReporteTabla(String rutaSalida, ReportHeader header, ReportTable tabla)
             throws ReportException {
         generarReporte(rutaSalida, header, tabla, null);
     }
 
+    //grafico del reporte
     public void reporteGrafico(String rutaSalida, ReportHeader header, ReportTable tabla, byte[] imagenGraficoPng)
             throws ReportException {
         generarReporte(rutaSalida, header, tabla, imagenGraficoPng);
     }
 
+    //generar el reporte y sus respectivas validaciones
     private void generarReporte(String rutaSalida, ReportHeader header, ReportTable tabla, byte[] imagenGraficoPng)
             throws ReportException {
         if (rutaSalida == null || rutaSalida.isBlank()) {
@@ -65,6 +70,7 @@ public class PdfReportService {
         }
     }
 
+    //encabezado
     private void agregarEncabezado(Document documento, ReportHeader header) throws DocumentException {
         Paragraph nombreSistema = new Paragraph(header.getNombreSistema(), FUENTE_SISTEMA);
         nombreSistema.setAlignment(Element.ALIGN_LEFT);
@@ -86,6 +92,7 @@ public class PdfReportService {
         documento.add(metadata);
     }
 
+    //tabla
     private void agregarTabla(Document documento, ReportTable tabla) throws DocumentException {
         if (tabla.estaVacia()) {
             Paragraph sinDatos = new Paragraph(
@@ -191,6 +198,7 @@ public class PdfReportService {
         }
     }
 
+    //metodo para agregar el grafico al reporte
     private void agregarGrafico(Document documento, byte[] imagenPng) throws Exception {
         try {
 
@@ -210,6 +218,7 @@ public class PdfReportService {
         }
     }
 
+    //convertir la imagen de Java FX a un png para poder mostrarla en el reporte
     public static byte[] convertirImagenJavaFxAPng(javafx.scene.image.WritableImage imagenFx)
         throws ReportException{
         try{
@@ -222,7 +231,6 @@ public class PdfReportService {
 
         }
     }
-    /** Evento de página que dibuja el pie con el número de página en cada hoja. */
     private static class PiePaginaConNumero extends PdfPageEventHelper {
 
         private static final Font FUENTE_PIE = new Font(Font.HELVETICA, 8, Font.NORMAL, Color.GRAY);

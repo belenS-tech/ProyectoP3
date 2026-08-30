@@ -8,13 +8,14 @@ import java.time.format.DateTimeFormatter;
 public class ReportHeader {
     private static final String NOMBRE_SISTEMA = "Sistema de Reserva de Recursos";
     private static final DateTimeFormatter FORMATO_FECHA_HORA =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); //formato para la fecha y hora en tiempo real
 
     private final String titulo;
     private final String usuarioGenera;
     private final String filtrosAplicados;
     private final LocalDateTime fechaGeneracion;
 
+    //debe tener un titulo y usuario
     public ReportHeader(String titulo, String usuarioGenera, String filtrosAplicados) {
         if (titulo == null || titulo.isBlank()) {
             throw new IllegalArgumentException("El título del reporte no puede estar vacío.");
@@ -28,6 +29,7 @@ public class ReportHeader {
         this.fechaGeneracion = LocalDateTime.now();
     }
 
+    //getters
     public String getNombreSistema(){
         return NOMBRE_SISTEMA;
     }
@@ -45,6 +47,7 @@ public class ReportHeader {
         return filtrosAplicados;
     }
 
+    //filtros
     public boolean tieneFiltros(){
         return filtrosAplicados != null && !filtrosAplicados.isBlank();
     }
