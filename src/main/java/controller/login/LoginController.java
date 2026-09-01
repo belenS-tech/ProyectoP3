@@ -1,5 +1,7 @@
 package controller.login;
 
+import controller.principal.MainController;
+import controller.principal.MainView;
 import model.login.Usuario;
 import service.login.AuthService;
 
@@ -17,6 +19,7 @@ public class LoginController {
     private void registrarEventos() {
         vista.getBotonIngresar().addActionListener(e -> intentarIngresar());
         vista.getBotonCancelar().addActionListener(e -> System.exit(0));
+        vista.getBotonCambiar().addActionListener(e -> abrirCambiarClave());
     }
 
     private void intentarIngresar() {
@@ -34,8 +37,26 @@ public class LoginController {
         }
     }
 
+    private void abrirCambiarClave() {
+        String id = vista.getIdIngresado();
+
+        try {
+            authService.verificarExiste(id);
+        } catch (IllegalArgumentException e) {
+            vista.mostrarError(e.getMessage());
+            return;
+        }
+
+        CambiarClaveView vistaClave = new CambiarClaveView(id);
+        new CambiarClaveController(vistaClave, authService, id);
+        vistaClave.setVisible(true);
+
+        vista.limpiarCampos();
+    }
+
     private void abrirVentanaPrincipal(Usuario usuario) {
-        javax.swing.JOptionPane.showMessageDialog(null,
-                "Bienvenido, " + usuario.getId() + " (" + usuario.getRol() + ")");
+        MainView mainView = new MainView(usuario);
+        new MainController(mainView, authService);
+        mainView.setVisible(true);
     }
 }
