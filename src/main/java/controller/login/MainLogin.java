@@ -7,9 +7,8 @@ import service.login.UsuarioXmlRepository;
 import javax.swing.*;
 
 /**
- * Clase de arranque para probar el módulo de login (Integrante 1 - Juan).
- * No es el punto de entrada oficial del proyecto; el arranque definitivo
- * se define en integración con el equipo.
+ * Clase demo para probar el módulo de login (Juan).
+ * No es el punto de entrada oficial del proyecto
  */
 public class MainLogin {
     public static void main(String[] args) {

@@ -1,19 +1,22 @@
 package controller.principal;
 
+import controller.categorias.CategoriasController;
+import controller.categorias.CategoriasView;
 import controller.funcionarios.FuncionariosController;
 import controller.funcionarios.FuncionariosView;
 import model.login.Rol;
 import model.login.Usuario;
+import service.categorias.CategoriaService;
 import service.funcionarios.FuncionarioService;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Ventana principal del sistema (NO es un punto de entrada, no tiene main()).
+ * Ventana principal del sistema (No es un punto de entrada, no tiene main()).
  * Contiene las pestañas de los módulos y el menú de sesión.
  * Las pestañas se agregan según el rol del usuario autenticado.
- * Integrante 1 - Juan.
+ * Juan.
  */
 public class MainView extends JFrame {
 
@@ -23,10 +26,12 @@ public class MainView extends JFrame {
     private JMenuItem itemCerrarSesion;
     private JMenuItem itemSalir;
 
-    public MainView(Usuario usuarioActivo, FuncionarioService funcionarioService) {
+    public MainView(Usuario usuarioActivo,
+                    FuncionarioService funcionarioService,
+                    CategoriaService categoriaService) {
         super("Sistema de Reserva de Recursos");
         construirVentana(usuarioActivo);
-        agregarPestanasSegunRol(usuarioActivo, funcionarioService);
+        agregarPestanasSegunRol(usuarioActivo, funcionarioService, categoriaService);
     }
 
     private void construirVentana(Usuario usuario) {
@@ -64,13 +69,18 @@ public class MainView extends JFrame {
      * Agrega únicamente las pestañas permitidas para el rol.
      * El funcionario nunca ve los módulos administrativos.
      */
-    private void agregarPestanasSegunRol(Usuario usuario, FuncionarioService funcionarioService) {
+    private void agregarPestanasSegunRol(Usuario usuario,
+                                         FuncionarioService funcionarioService,
+                                         CategoriaService categoriaService) {
         if (usuario.getRol() == Rol.ADMINISTRADOR) {
             FuncionariosView vistaFuncionarios = new FuncionariosView();
             new FuncionariosController(vistaFuncionarios, funcionarioService);
             agregarPestana("Funcionarios", vistaFuncionarios);
 
-            agregarPestana("Categorías", pendiente("Categorías"));
+            CategoriasView vistaCategorias = new CategoriasView();
+            new CategoriasController(vistaCategorias, categoriaService);
+            agregarPestana("Categorías", vistaCategorias);
+
             agregarPestana("Recursos", pendiente("Recursos - Integrante 2"));
         }
 

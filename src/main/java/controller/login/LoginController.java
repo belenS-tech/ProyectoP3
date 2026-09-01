@@ -3,6 +3,9 @@ package controller.login;
 import controller.principal.MainController;
 import controller.principal.MainView;
 import model.login.Usuario;
+import service.categorias.CategoriaRepository;
+import service.categorias.CategoriaService;
+import service.categorias.CategoriaXmlRepository;
 import service.funcionarios.FuncionarioRepository;
 import service.funcionarios.FuncionarioService;
 import service.funcionarios.FuncionarioXmlRepository;
@@ -66,7 +69,10 @@ public class LoginController {
         FuncionarioService funcionarioService =
                 new FuncionarioService(funcionarioRepository, usuarioRepository);
 
-        MainView mainView = new MainView(usuario, funcionarioService);
+        CategoriaRepository categoriaRepository = new CategoriaXmlRepository();
+        CategoriaService categoriaService = new CategoriaService(categoriaRepository);
+
+        MainView mainView = new MainView(usuario, funcionarioService, categoriaService);
         new MainController(mainView, authService, usuarioRepository);
         mainView.setVisible(true);
     }

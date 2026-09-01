@@ -12,7 +12,7 @@ public class CategoriaRecurso {
     private String descripcion;
 
     public CategoriaRecurso() {
-        // Constructor vacío requerido por JAXB
+
     }
 
     public CategoriaRecurso(String id, String descripcion) {

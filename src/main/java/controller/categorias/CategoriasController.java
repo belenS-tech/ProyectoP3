@@ -1,23 +1,23 @@
-package controller.funcionarios;
+package controller.categorias;
 
-import model.funcionarios.Funcionario;
+import model.categorias.CategoriaRecurso;
 import model.login.Usuario;
 import report.PdfReportService;
 import report.ReportHeader;
 import report.ReportTable;
-import service.funcionarios.FuncionarioService;
+import service.categorias.CategoriaService;
 import service.login.SessionManager;
 
 import javax.swing.event.ListSelectionEvent;
 import java.io.File;
 import java.util.List;
 
-public class FuncionariosController {
+public class CategoriasController {
 
-    private final FuncionariosView vista;
-    private final FuncionarioService servicio;
+    private final CategoriasView vista;
+    private final CategoriaService servicio;
 
-    public FuncionariosController(FuncionariosView vista, FuncionarioService servicio) {
+    public CategoriasController(CategoriasView vista, CategoriaService servicio) {
         this.vista = vista;
         this.servicio = servicio;
         registrarEventos();
@@ -31,7 +31,6 @@ public class FuncionariosController {
         vista.getBotonLimpiar().addActionListener(e -> vista.limpiarFormulario());
         vista.getBotonImprimir().addActionListener(e -> imprimir());
 
-        // Al seleccionar una fila, se cargan sus datos en el formulario
         vista.getTabla().getSelectionModel().addListSelectionListener(this::alSeleccionarFila);
     }
 
@@ -43,9 +42,9 @@ public class FuncionariosController {
         if (id == null) {
             return;
         }
-        Funcionario funcionario = servicio.buscarPorId(id);
-        if (funcionario != null) {
-            vista.mostrarEnFormulario(funcionario);
+        CategoriaRecurso categoria = servicio.buscarPorId(id);
+        if (categoria != null) {
+            vista.mostrarEnFormulario(categoria);
         }
     }
 
@@ -54,22 +53,23 @@ public class FuncionariosController {
     }
 
     private void buscar() {
-        vista.cargarTabla(servicio.buscar(vista.getBuscarId(), vista.getBuscarNombre()));
+        vista.cargarTabla(servicio.buscar(vista.getBuscarDescripcion()));
     }
 
     /**
-     Si el ID ya existe se modifica; si no, se incluye como nuevo.
+     * Si hay un ID en el formulario se modifica; si está vacío,
+     * se incluye una categoría nueva con ID autogenerado.
      */
     private void guardar() {
         try {
             String id = vista.getId();
 
-            if (id != null && !id.isBlank() && servicio.buscarPorId(id.trim()) != null) {
-                servicio.modificar(id, vista.getNombre(), vista.getTelefono());
-                vista.mostrarMensaje("Funcionario modificado correctamente.");
+            if (id != null && !id.isBlank()) {
+                servicio.modificar(id, vista.getDescripcion());
+                vista.mostrarMensaje("Categoría modificada correctamente.");
             } else {
-                servicio.incluir(id, vista.getNombre(), vista.getTelefono());
-                vista.mostrarMensaje("Funcionario incluido. Su clave inicial es igual al ID.");
+                servicio.incluir(vista.getDescripcion());
+                vista.mostrarMensaje("Categoría incluida correctamente.");
             }
 
             vista.limpiarFormulario();
@@ -84,16 +84,16 @@ public class FuncionariosController {
         try {
             String id = vista.getId();
             if (id == null || id.isBlank()) {
-                vista.mostrarError("Seleccione un funcionario del listado.");
+                vista.mostrarError("Seleccione una categoría del listado.");
                 return;
             }
 
-            if (!vista.confirmar("¿Desea borrar el funcionario " + id + " y su usuario?")) {
+            if (!vista.confirmar("¿Desea borrar la categoría " + id + "?")) {
                 return;
             }
 
             servicio.eliminar(id);
-            vista.mostrarMensaje("Funcionario borrado correctamente.");
+            vista.mostrarMensaje("Categoría borrada correctamente.");
             vista.limpiarFormulario();
             cargarListado();
 
@@ -102,25 +102,29 @@ public class FuncionariosController {
         }
     }
 
-    /** Genera el reporte PDF respetando los filtros de búsqueda aplicados. */
+    /** Genera el reporte PDF respetando el filtro de búsqueda aplicado. */
     private void imprimir() {
         try {
-            List<Funcionario> listado = servicio.buscar(vista.getBuscarId(), vista.getBuscarNombre());
+            List<CategoriaRecurso> listado = servicio.buscar(vista.getBuscarDescripcion());
 
-            ReportTable tabla = new ReportTable(List.of("Id", "Nombre", "Teléfono"));
-            for (Funcionario f : listado) {
-                tabla.agregarFila(f.getId(), f.getNombre(), f.getTelefono());
+            ReportTable tabla = new ReportTable(List.of("Id", "Descripcion"));
+            for (CategoriaRecurso c : listado) {
+                tabla.agregarFila(c.getId(), c.getDescripcion());
             }
 
             Usuario usuarioActivo = SessionManager.getInstancia().getUsuarioActual();
             String nombreUsuario = usuarioActivo != null ? usuarioActivo.getId() : "";
 
-            ReportHeader header = new ReportHeader(
-                    "Listado de Funcionarios",
-                    nombreUsuario,
-                    describirFiltros());
+            String filtro = vista.getBuscarDescripcion();
+            String filtros = (filtro == null || filtro.isBlank())
+                    ? "" : "Descripción: " + filtro.trim();
 
-            String ruta = "funcionarios.pdf";
+            ReportHeader header = new ReportHeader(
+                    "Listado de Categorias",
+                    nombreUsuario,
+                    filtros);
+
+            String ruta = "categorias.pdf";
             new PdfReportService().generarReporteTabla(ruta, header, tabla);
 
             vista.mostrarMensaje("Reporte generado: " + new File(ruta).getAbsolutePath());
@@ -128,23 +132,5 @@ public class FuncionariosController {
         } catch (Exception ex) {
             vista.mostrarError("No se pudo generar el reporte: " + ex.getMessage());
         }
-    }
-
-    /** Describe los filtros aplicados para que queden registrados en el PDF. */
-    private String describirFiltros() {
-        String id = vista.getBuscarId();
-        String nombre = vista.getBuscarNombre();
-
-        StringBuilder filtros = new StringBuilder();
-        if (id != null && !id.isBlank()) {
-            filtros.append("ID: ").append(id.trim());
-        }
-        if (nombre != null && !nombre.isBlank()) {
-            if (filtros.length() > 0) {
-                filtros.append(", ");
-            }
-            filtros.append("Nombre: ").append(nombre.trim());
-        }
-        return filtros.toString();
     }
 }

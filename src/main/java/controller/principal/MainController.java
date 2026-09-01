@@ -11,7 +11,6 @@ import service.login.UsuarioRepository;
 /**
  * Controlador de la ventana principal (NO es un punto de entrada, no tiene main()).
  * Maneja las acciones de sesión: cambiar clave, cerrar sesión y salir.
- * Integrante 1 - Juan.
  */
 public class MainController {
 
