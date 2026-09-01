@@ -6,20 +6,24 @@ import controller.login.LoginController;
 import controller.login.LoginView;
 import service.login.AuthService;
 import service.login.SessionManager;
+import service.login.UsuarioRepository;
 
 /**
  * Controlador de la ventana principal (NO es un punto de entrada, no tiene main()).
  * Maneja las acciones de sesión: cambiar clave, cerrar sesión y salir.
- *JUAN
+ * Integrante 1 - Juan.
  */
 public class MainController {
 
     private final MainView vista;
     private final AuthService authService;
+    private final UsuarioRepository usuarioRepository;
 
-    public MainController(MainView vista, AuthService authService) {
+    public MainController(MainView vista, AuthService authService,
+                          UsuarioRepository usuarioRepository) {
         this.vista = vista;
         this.authService = authService;
+        this.usuarioRepository = usuarioRepository;
         registrarEventos();
     }
 
@@ -44,7 +48,7 @@ public class MainController {
         vista.dispose();
 
         LoginView loginView = new LoginView();
-        new LoginController(loginView, authService);
+        new LoginController(loginView, authService, usuarioRepository);
         loginView.setVisible(true);
     }
 

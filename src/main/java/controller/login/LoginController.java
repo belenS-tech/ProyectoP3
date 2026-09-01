@@ -3,16 +3,23 @@ package controller.login;
 import controller.principal.MainController;
 import controller.principal.MainView;
 import model.login.Usuario;
+import service.funcionarios.FuncionarioRepository;
+import service.funcionarios.FuncionarioService;
+import service.funcionarios.FuncionarioXmlRepository;
 import service.login.AuthService;
+import service.login.UsuarioRepository;
 
 public class LoginController {
 
     private final LoginView vista;
     private final AuthService authService;
+    private final UsuarioRepository usuarioRepository;
 
-    public LoginController(LoginView vista, AuthService authService) {
+    public LoginController(LoginView vista, AuthService authService,
+                           UsuarioRepository usuarioRepository) {
         this.vista = vista;
         this.authService = authService;
+        this.usuarioRepository = usuarioRepository;
         registrarEventos();
     }
 
@@ -55,8 +62,12 @@ public class LoginController {
     }
 
     private void abrirVentanaPrincipal(Usuario usuario) {
-        MainView mainView = new MainView(usuario);
-        new MainController(mainView, authService);
+        FuncionarioRepository funcionarioRepository = new FuncionarioXmlRepository();
+        FuncionarioService funcionarioService =
+                new FuncionarioService(funcionarioRepository, usuarioRepository);
+
+        MainView mainView = new MainView(usuario, funcionarioService);
+        new MainController(mainView, authService, usuarioRepository);
         mainView.setVisible(true);
     }
 }

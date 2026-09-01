@@ -7,9 +7,10 @@ import service.login.UsuarioXmlRepository;
 import javax.swing.*;
 
 /**
- Clase de arranque para probar el módulo de login (Juan).
+ * Clase de arranque para probar el módulo de login (Integrante 1 - Juan).
+ * No es el punto de entrada oficial del proyecto; el arranque definitivo
+ * se define en integración con el equipo.
  */
-
 public class MainLogin {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -17,7 +18,8 @@ public class MainLogin {
             AuthService authService = new AuthService(usuarioRepository);
 
             LoginView loginView = new LoginView();
-            LoginController loginController = new LoginController(loginView, authService);
+            LoginController loginController =
+                    new LoginController(loginView, authService, usuarioRepository);
 
             loginView.setVisible(true);
         });

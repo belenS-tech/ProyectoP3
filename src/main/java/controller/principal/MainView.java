@@ -1,7 +1,10 @@
 package controller.principal;
 
+import controller.funcionarios.FuncionariosController;
+import controller.funcionarios.FuncionariosView;
 import model.login.Rol;
 import model.login.Usuario;
+import service.funcionarios.FuncionarioService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,10 +23,10 @@ public class MainView extends JFrame {
     private JMenuItem itemCerrarSesion;
     private JMenuItem itemSalir;
 
-    public MainView(Usuario usuarioActivo) {
+    public MainView(Usuario usuarioActivo, FuncionarioService funcionarioService) {
         super("Sistema de Reserva de Recursos");
         construirVentana(usuarioActivo);
-        agregarPestanasSegunRol(usuarioActivo);
+        agregarPestanasSegunRol(usuarioActivo, funcionarioService);
     }
 
     private void construirVentana(Usuario usuario) {
@@ -61,10 +64,14 @@ public class MainView extends JFrame {
      * Agrega únicamente las pestañas permitidas para el rol.
      * El funcionario nunca ve los módulos administrativos.
      */
-    private void agregarPestanasSegunRol(Usuario usuario) {
+    private void agregarPestanasSegunRol(Usuario usuario, FuncionarioService funcionarioService) {
         if (usuario.getRol() == Rol.ADMINISTRADOR) {
-            agregarPestana("Funcionarios", pendiente("Funcionarios"));
+            FuncionariosView vistaFuncionarios = new FuncionariosView();
+            new FuncionariosController(vistaFuncionarios, funcionarioService);
+            agregarPestana("Funcionarios", vistaFuncionarios);
+
             agregarPestana("Categorías", pendiente("Categorías"));
+            agregarPestana("Recursos", pendiente("Recursos - Integrante 2"));
         }
 
         // Ambos roles: reservas, calendarización, actividades y estadísticas
