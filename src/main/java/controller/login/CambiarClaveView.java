@@ -3,7 +3,7 @@ package controller.login;
 import javax.swing.*;
 import java.awt.*;
 
-public class CambiarClaveView extends JFrame {
+public class CambiarClaveView extends JDialog {
 
     private JPasswordField campoActual;
     private JPasswordField campoNueva;
@@ -13,9 +13,10 @@ public class CambiarClaveView extends JFrame {
 
     /** Muestra el ID en el título para que el usuario sepa de quién es la clave. */
     public CambiarClaveView(String idUsuario) {
-        super(idUsuario == null || idUsuario.isBlank()
+        setTitle(idUsuario == null || idUsuario.isBlank()
                 ? "Cambiar Clave"
                 : "Cambiar Clave - " + idUsuario);
+        setModal(true); // bloquea la ventana de atrás hasta cerrarse
         construirVentana();
     }
 
@@ -24,7 +25,7 @@ public class CambiarClaveView extends JFrame {
     }
 
     private void construirVentana() {
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setSize(380, 230);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
