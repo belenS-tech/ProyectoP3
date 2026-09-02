@@ -1,7 +1,7 @@
-package service;
+package service.login;
 
-import model.Rol;
-import model.Usuario;
+import model.login.Rol;
+import model.login.Usuario;
 
 public class SessionManager {
 

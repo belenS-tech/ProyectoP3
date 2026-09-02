@@ -1,4 +1,4 @@
-package model;
+package model.login;
 
 public enum Rol {
     ADMINISTRADOR,
