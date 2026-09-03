@@ -1,0 +1,177 @@
+package repository;
+
+import model.Recurso;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RecursoXmlRepository implements RecursoRepository {
+
+    private final String archivo = "src/main/java/model/recursos/recursos.xml";
+
+    @Override
+    public void guardar(Recurso recurso){
+        try {
+            File file = new File(archivo);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            Document document = builder.parse(file);
+
+            Element raiz = document.getDocumentElement(); //raiz -> <recursos>
+
+            Element elementoRecurso = document.createElement("recurso");
+
+            Element elementoId = document.createElement("id");
+            elementoId.setTextContent(String.valueOf(recurso.getId()));
+            elementoRecurso.appendChild(elementoId);
+
+            Element elementoCategoria = document.createElement("categoria");
+            elementoCategoria.setTextContent(recurso.getCategoria().toString());
+            elementoRecurso.appendChild(elementoCategoria);
+
+            Element elementoDescripcion = document.createElement("descripcion");
+            elementoDescripcion.setTextContent(recurso.getDescripcion());
+            elementoRecurso.appendChild(elementoDescripcion);
+
+            raiz.appendChild(elementoRecurso);
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(new File(archivo));
+            transformer.transform(source, result);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Recurso> listar() {
+        try {
+            File file = new File(archivo);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(archivo);
+
+            NodeList nodeList = document.getElementsByTagName("recurso");
+            List<Recurso> recursos = new ArrayList<>();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element elementoRecurso = (Element) nodeList.item(i);
+                String id = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
+                String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
+                String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
+                Recurso recurso = new Recurso(Integer.parseInt(id), CategoriaRecurso.valueOf(categoria), descripcion);
+                recursos.add(recurso);
+                System.out.println("Recurso ID: " + id + ", Categoria: " + categoria + ", Descripcion: " + descripcion);
+            }
+            return recursos;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Recurso buscarPorId(int id) {
+        try {
+            File file = new File(archivo);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(archivo);
+
+            NodeList nodeList = document.getElementsByTagName("recurso");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element elementoRecurso = (Element) nodeList.item(i);
+                String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
+                if (Integer.parseInt(idRecurso) == id) {
+                    String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
+                    String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
+                    return new Recurso(Integer.parseInt(idRecurso), CategoriaRecurso.valueOf(categoria), descripcion);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void actualizar(Recurso recurso) {
+        try {
+            File file = new File(archivo);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(archivo);
+
+            NodeList nodeList = document.getElementsByTagName("recurso");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element elementoRecurso = (Element) nodeList.item(i);
+                String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
+                if (Integer.parseInt(idRecurso) == Integer.parseInt(String.valueOf(recurso.getId()))) {
+                    elementoRecurso.getElementsByTagName("categoria").item(0).setTextContent(recurso.getCategoria().toString());
+                    elementoRecurso.getElementsByTagName("descripcion").item(0).setTextContent(recurso.getDescripcion());
+                    break;
+                }
+            }
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(new File(archivo));
+            transformer.transform(source, result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void eliminar(Recurso recurso) {
+        try {
+            File file = new File(archivo);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(archivo);
+
+            NodeList nodeList = document.getElementsByTagName("recurso");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element elementoRecurso = (Element) nodeList.item(i);
+                String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
+                if (Integer.parseInt(idRecurso) == Integer.parseInt(String.valueOf(recurso.getId()))) {
+                    elementoRecurso.getParentNode().removeChild(elementoRecurso);
+                    break;
+                }
+            }
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(new File(archivo));
+            transformer.transform(source, result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
