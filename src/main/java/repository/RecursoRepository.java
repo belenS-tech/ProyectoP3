@@ -7,7 +7,7 @@ import java.util.List;
 public interface RecursoRepository {
     void guardar(Recurso recurso);
     List<Recurso> listar();
-    Recurso buscarPorId(int id);
+    Recurso buscarPorId(String id);
     void actualizar(Recurso recurso);
     void eliminar(Recurso recurso);
 }
