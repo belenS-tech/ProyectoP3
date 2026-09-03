@@ -1,6 +1,6 @@
-package service;
+package service.Actividades;
 
-import model.FilaActividad;
+import model.Actividades.FilaActividad;
 
 import java.time.LocalDate;
 import java.util.List;

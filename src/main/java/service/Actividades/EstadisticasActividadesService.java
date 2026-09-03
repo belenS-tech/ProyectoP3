@@ -1,4 +1,4 @@
-package service;
+package service.Actividades;
 
 /* import model.Reserva;
 import repository.ReservaRepository;
