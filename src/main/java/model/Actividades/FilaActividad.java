@@ -1,4 +1,4 @@
-package model;
+package model.Actividades;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
