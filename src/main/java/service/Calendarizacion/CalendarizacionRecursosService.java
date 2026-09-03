@@ -1,7 +1,7 @@
-package service;
+package service.Calendarizacion;
 /*
 import model.DetalleReserva;
-import model.FilaCalendarizacion;
+import model.Calendarizacion.FilaCalendarizacion;
 import model.Recurso;
 import model.Reserva;
 import repository.RecursoRepository;

@@ -1,6 +1,5 @@
-package service;
+package service.Calendarizacion;
 
-import model.FilaCalendarizacion;
 //import model.Recurso;
 
 /*import java.util.List;
