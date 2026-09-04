@@ -12,7 +12,6 @@ public class CategoriaRecurso {
     private String descripcion;
 
     public CategoriaRecurso() {
-
     }
 
     public CategoriaRecurso(String id, String descripcion) {
@@ -37,14 +36,13 @@ public class CategoriaRecurso {
     }
 
     public boolean isEmpty() {
-        return (id == null || id.isBlank()) && (descripcion == null || descripcion.isBlank());
+        return (id == null || id.isBlank())
+                || (descripcion == null || descripcion.isBlank());
     }
 
+    // Usa el texto como id, no genera el formato CAT-000001
     public static CategoriaRecurso valueOf(String categoria) {
-        if (categoria == null || categoria.isBlank()) {
-            return null;
-        }
-        return new CategoriaRecurso(categoria.trim(), categoria.trim());
+        return new CategoriaRecurso(categoria, categoria);
     }
 
     @Override
