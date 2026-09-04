@@ -1,14 +1,18 @@
 import javax.swing.*;
+import controller.login.LoginController;
+import controller.login.LoginView;
+import service.login.AuthService;
+import service.login.UsuarioRepository;
+import service.login.UsuarioXmlRepository;
 
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JFrame ventana = new JFrame("Sistema de Reserva de Recursos");
-            ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            ventana.setSize(800, 600);
-            ventana.setLocationRelativeTo(null); // la centra en la pantalla
-            ventana.setVisible(true);
+            UsuarioRepository usuarioRepository = new UsuarioXmlRepository();
+            AuthService authService = new AuthService(usuarioRepository);
+            LoginView loginView = new LoginView();
+            new LoginController(loginView, authService, usuarioRepository);
+            loginView.setVisible(true);
         });
     }
 }
-
