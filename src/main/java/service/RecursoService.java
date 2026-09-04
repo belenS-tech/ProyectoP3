@@ -1,8 +1,10 @@
 package service;
 
-
 import model.Recurso;
+import model.categorias.CategoriaRecurso;
 import repository.RecursoRepository;
+
+import java.util.List;
 
 public class RecursoService {
     private final RecursoRepository repository;
@@ -11,46 +13,61 @@ public class RecursoService {
         this.repository = repository;
     }
 
-    public void verificarId(Recurso recurso) {
-        if(recurso.getId() == null || recurso.getId().isEmpty()) {
-            throw new IllegalArgumentException("El ID del recurso no puede ser nulo o vacío.");
-        }
-
-        if(repository.buscarPorId(recurso.getId()) != null) {
-            throw new IllegalArgumentException("El ID del recurso ya existe.");
-        }
+    public List<Recurso> listarTodos() {
+        return repository.listar();
     }
 
-    public void verificarCategoria(Recurso recurso) {
-        if(recurso.getCategoria() == null || recurso.getCategoria().toString().isEmpty()) {
-            throw new IllegalArgumentException("La categoría del recurso no puede ser nula o vacía.");
-        }
-    }
-
-    public void verificarDescripcion(Recurso recurso) {
-        if(recurso.getDescripcion() == null || recurso.getDescripcion().isEmpty()) {
-            throw new IllegalArgumentException("La descripción del recurso no puede ser nula o vacía.");
-        }
-    }
-
-    public void consultar(Recurso recurso) {
-        verificarId(recurso);
-        verificarCategoria(recurso);
-        verificarDescripcion(recurso);
+    public Recurso buscarPorId(String id) {
+        validarId(id);
+        return repository.buscarPorId(id.trim());
     }
 
     public void registrar(Recurso recurso) {
-        consultar(recurso);
+        validarRecurso(recurso);
+        if (repository.buscarPorId(recurso.getId().trim()) != null) {
+            throw new IllegalArgumentException("El ID del recurso ya existe.");
+        }
         repository.guardar(recurso);
     }
 
     public void actualizar(Recurso recurso) {
-        consultar(recurso);
+        validarRecurso(recurso);
+        if (repository.buscarPorId(recurso.getId().trim()) == null) {
+            throw new IllegalArgumentException("No existe un recurso con ese ID.");
+        }
         repository.actualizar(recurso);
     }
 
     public void eliminar(Recurso recurso) {
-        consultar(recurso);
+        if (recurso == null) {
+            throw new IllegalArgumentException("El recurso no puede ser nulo.");
+        }
+        validarId(recurso.getId());
+        if (repository.buscarPorId(recurso.getId().trim()) == null) {
+            throw new IllegalArgumentException("No existe un recurso con ese ID.");
+        }
         repository.eliminar(recurso);
+    }
+
+    private void validarRecurso(Recurso recurso) {
+        if (recurso == null) {
+            throw new IllegalArgumentException("El recurso no puede ser nulo.");
+        }
+        validarId(recurso.getId());
+
+        CategoriaRecurso categoria = recurso.getCategoria();
+        if (categoria == null || categoria.isEmpty()) {
+            throw new IllegalArgumentException("La categoría del recurso no puede ser nula o vacía.");
+        }
+
+        if (recurso.getDescripcion() == null || recurso.getDescripcion().isBlank()) {
+            throw new IllegalArgumentException("La descripción del recurso no puede ser nula o vacía.");
+        }
+    }
+
+    private void validarId(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("El ID del recurso no puede ser nulo o vacío.");
+        }
     }
 }

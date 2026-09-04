@@ -36,6 +36,17 @@ public class CategoriaRecurso {
         this.descripcion = descripcion;
     }
 
+    public boolean isEmpty() {
+        return (id == null || id.isBlank()) && (descripcion == null || descripcion.isBlank());
+    }
+
+    public static CategoriaRecurso valueOf(String categoria) {
+        if (categoria == null || categoria.isBlank()) {
+            return null;
+        }
+        return new CategoriaRecurso(categoria.trim(), categoria.trim());
+    }
+
     @Override
     public String toString() {
         return descripcion;

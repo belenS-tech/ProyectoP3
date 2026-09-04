@@ -4,8 +4,10 @@ import model.DetalleReserva;
 import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
+import repository.RecursoXmlRepository;
 import repository.ReservaRepository;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ReservaService {
@@ -18,38 +20,47 @@ public class ReservaService {
         this.reservaRepository = reservaRepository;
     }
 
-    public void registrar(Reserva reserva) {
-        validarReservaBase(reserva);
+    public ReservaService(ReservaRepository reservaRepository) {
+        this(new DisponibilidadService(new RecursoXmlRepository(), reservaRepository), reservaRepository);
+    }
 
-        if (reserva.getDetalles() == null || reserva.getDetalles().isEmpty()) {
-            throw new IllegalArgumentException("La reserva debe tener al menos un detalle");
-        }
-
-        for (DetalleReserva detalle : reserva.getDetalles()) {
-            Recurso recursoDisponible = disponibilidadService.buscarRecursoDisponible(
-                    detalle.getCategoria(),
-                    reserva.getFecha(),
-                    reserva.getHoraInicio(),
-                    reserva.getHoraFin()
-            );
-
-            if (recursoDisponible == null || !Objects.equals(recursoDisponible.getId(), detalle.getRecurso().getId())) {
-                throw new IllegalArgumentException("El recurso no está disponible");
-            }
-        }
-
-        reservaRepository.guardar(reserva);
+    public List<Reserva> listarTodos() {
+        return reservaRepository.listar();
     }
 
     public Reserva buscarPorId(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("El ID de la reserva no puede ser nulo o vacío");
         }
-        return reservaRepository.buscarPorId(id);
+        return reservaRepository.buscarPorId(id.trim());
+    }
+
+    public void registrar(Reserva reserva) {
+        validarReservaBase(reserva);
+
+        if (reserva.getDetalles() != null && !reserva.getDetalles().isEmpty()) {
+            for (DetalleReserva detalle : reserva.getDetalles()) {
+                Recurso recursoDisponible = disponibilidadService.buscarRecursoDisponible(
+                        detalle.getCategoria(),
+                        reserva.getFecha(),
+                        reserva.getHoraInicio(),
+                        reserva.getHoraFin()
+                );
+
+                if (recursoDisponible == null || !Objects.equals(recursoDisponible.getId(), detalle.getRecurso().getId())) {
+                    throw new IllegalArgumentException("El recurso no está disponible");
+                }
+            }
+        }
+
+        reservaRepository.guardar(reserva);
     }
 
     public void actualizar(Reserva reserva) {
         validarReservaBase(reserva);
+        if (reservaRepository.buscarPorId(reserva.getId().trim()) == null) {
+            throw new IllegalArgumentException("No existe una reserva con ese ID.");
+        }
         reservaRepository.actualizar(reserva);
     }
 
@@ -59,6 +70,9 @@ public class ReservaService {
         }
         if (reserva.getId() == null || reserva.getId().isBlank()) {
             throw new IllegalArgumentException("El ID de la reserva no puede ser nulo o vacío");
+        }
+        if (reservaRepository.buscarPorId(reserva.getId().trim()) == null) {
+            throw new IllegalArgumentException("No existe una reserva con ese ID.");
         }
         reservaRepository.eliminar(reserva);
     }

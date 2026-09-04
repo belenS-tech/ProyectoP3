@@ -4,6 +4,8 @@ import controller.categorias.CategoriasController;
 import controller.categorias.CategoriasView;
 import controller.funcionarios.FuncionariosController;
 import controller.funcionarios.FuncionariosView;
+import controller.RecursoController;
+import controller.ReservaController;
 import model.login.Rol;
 import model.login.Usuario;
 import service.categorias.CategoriaService;
@@ -81,11 +83,11 @@ public class MainView extends JFrame {
             new CategoriasController(vistaCategorias, categoriaService);
             agregarPestana("Categorías", vistaCategorias);
 
-            agregarPestana("Recursos", pendiente("Recursos - Integrante 2"));
+            agregarPestana("Recursos", new RecursoController(categoriaService));
         }
 
         // Ambos roles: reservas, calendarización, actividades y estadísticas
-        agregarPestana("Reservas", pendiente("Reservas - Integrante 2"));
+        agregarPestana("Reservas", new ReservaController());
         agregarPestana("Calendarización", pendiente("Calendarización - Integrante 3"));
         agregarPestana("Actividades", pendiente("Actividades - Integrante 3"));
         agregarPestana("Estadísticas", pendiente("Estadísticas"));

@@ -6,7 +6,6 @@ import com.lowagie.text.pdf.*;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 
 import java.awt.Color;
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.List;
 
@@ -218,19 +217,6 @@ public class PdfReportService {
         }
     }
 
-    //convertir la imagen de Java FX a un png para poder mostrarla en el reporte
-    public static byte[] convertirImagenJavaFxAPng(javafx.scene.image.WritableImage imagenFx)
-        throws ReportException{
-        try{
-            java.awt.image.BufferedImage imagenAwt = javafx.embed.swing.SwingFXUtils.fromFXImage(imagenFx, null);
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(imagenAwt, "png", buffer);
-            return buffer.toByteArray();
-        } catch (Exception e) {
-            throw new ReportException("No fue posible convertir el gráfico a imagen: " + e.getMessage(), e);
-
-        }
-    }
     private static class PiePaginaConNumero extends PdfPageEventHelper {
 
         private static final Font FUENTE_PIE = new Font(Font.HELVETICA, 8, Font.NORMAL, Color.GRAY);

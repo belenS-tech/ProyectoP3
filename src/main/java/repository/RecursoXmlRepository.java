@@ -1,6 +1,7 @@
 package repository;
 
 import model.Recurso;
+import model.categorias.CategoriaRecurso;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -75,7 +76,7 @@ public class RecursoXmlRepository implements RecursoRepository {
                 String id = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
                 String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
                 String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
-                Recurso recurso = new Recurso(Integer.parseInt(id), CategoriaRecurso.valueOf(categoria), descripcion);
+                Recurso recurso = new Recurso(id, CategoriaRecurso.valueOf(categoria), descripcion);
                 recursos.add(recurso);
                 System.out.println("Recurso ID: " + id + ", Categoria: " + categoria + ", Descripcion: " + descripcion);
             }
@@ -111,7 +112,7 @@ public class RecursoXmlRepository implements RecursoRepository {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element elementoRecurso = (Element) nodeList.item(i);
                 String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                if (Integer.parseInt(idRecurso) == Integer.parseInt(String.valueOf(recurso.getId()))) {
+                if (idRecurso.equals(recurso.getId())) {
                     elementoRecurso.getElementsByTagName("categoria").item(0).setTextContent(recurso.getCategoria().getId());
                     elementoRecurso.getElementsByTagName("descripcion").item(0).setTextContent(recurso.getDescripcion());
                     break;

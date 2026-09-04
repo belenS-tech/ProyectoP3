@@ -1,6 +1,6 @@
 package model;
 
-import repository.CategoriaRecurso;
+import model.categorias.CategoriaRecurso;
 
 public class DetalleReserva {
 
