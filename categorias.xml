@@ -4,4 +4,8 @@
         <id>CAT-000001</id>
         <descripcion>estudio</descripcion>
     </categoria>
+    <categoria>
+        <id>CAT-000002</id>
+        <descripcion>juegos de mesa</descripcion>
+    </categoria>
 </categorias>

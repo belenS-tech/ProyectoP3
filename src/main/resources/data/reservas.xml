@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><reservas>
 
-<reserva><id>11</id><actividad>juego</actividad><fecha>2026-09-09</fecha><horaInicio>11:00</horaInicio><horaFin>12:00</horaFin><funcionarioId>111</funcionarioId><estado>ACTIVA</estado><detalles/></reserva></reservas>
+<reserva><id>11</id><actividad>juego</actividad><fecha>2026-09-09</fecha><horaInicio>11:00</horaInicio><horaFin>12:00</horaFin><funcionarioId>111</funcionarioId><estado>ACTIVA</estado><detalles/></reserva><reserva><id>12</id><actividad>estudiar</actividad><fecha>2026-09-11</fecha><horaInicio>12:00</horaInicio><horaFin>13:00</horaFin><funcionarioId>111</funcionarioId><estado>ACTIVA</estado><detalles/></reserva><reserva><id>13</id><actividad>estudiar2</actividad><fecha>2026-09-11</fecha><horaInicio>22:00</horaInicio><horaFin>23:00</horaFin><funcionarioId>111</funcionarioId><estado>ACTIVA</estado><detalles/></reserva></reservas>

@@ -1,9 +1,20 @@
 package controller;
 
+import exception.AiReservationException;
+import model.DetalleReserva;
 import model.EstadoReserva;
+import model.Recurso;
 import model.Reserva;
+import model.categorias.CategoriaRecurso;
+import repository.RecursoRepository;
+import repository.RecursoXmlRepository;
 import repository.ReservaXmlRepository;
+import service.AiReservationResponse;
+import service.AiReservationService;
+import service.DisponibilidadService;
 import service.ReservaService;
+import service.categorias.CategoriaService;
+import service.categorias.CategoriaXmlRepository;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -11,11 +22,16 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReservaController extends JPanel {
 
     private final ReservaService reservaService;
+    private final DisponibilidadService disponibilidadService;
+    private final RecursoRepository recursoRepo;
+    private final CategoriaService categoriaService;
+    private final AiReservationService aiReservationService = new AiReservationService();
 
     private JTextField txtId;
     private JTextField txtActividad;
@@ -32,9 +48,25 @@ public class ReservaController extends JPanel {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
+    // --- Sección de Inteligencia Artificial ---
+    private JTextArea txtFrase;
+    private JButton btnExtraerIA;
+    private JList<CategoriaRecurso> listaCategorias;
+    private DefaultListModel<CategoriaRecurso> modeloListaCategorias;
+
     public ReservaController() {
-        this.reservaService = new ReservaService(new ReservaXmlRepository());
+        this(new CategoriaService(new CategoriaXmlRepository()));
+    }
+
+    public ReservaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
+        this.recursoRepo = new RecursoXmlRepository();
+        ReservaXmlRepository reservaRepo = new ReservaXmlRepository();
+        this.disponibilidadService = new DisponibilidadService(recursoRepo, reservaRepo);
+        this.reservaService = new ReservaService(disponibilidadService, reservaRepo);
+
         construirPantalla();
+        cargarCategorias();
         cargarTabla();
         registrarEventos();
     }
@@ -48,10 +80,32 @@ public class ReservaController extends JPanel {
 
         JPanel panelSuperior = new JPanel(new BorderLayout(10, 10));
         panelSuperior.add(titulo, BorderLayout.NORTH);
-        panelSuperior.add(construirFormulario(), BorderLayout.CENTER);
+        panelSuperior.add(construirPanelIA(), BorderLayout.CENTER);
+        panelSuperior.add(construirFormulario(), BorderLayout.SOUTH);
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirTabla(), BorderLayout.CENTER);
+    }
+
+    /** Zona de "llenar con IA": frase en lenguaje natural + extracción automática. */
+    private JPanel construirPanelIA() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createTitledBorder("Reservar usando IA"));
+
+        txtFrase = new JTextArea(2, 40);
+        txtFrase.setLineWrap(true);
+        txtFrase.setWrapStyleWord(true);
+        JScrollPane scrollFrase = new JScrollPane(txtFrase);
+
+        btnExtraerIA = new JButton("Extraer con IA");
+
+        JPanel panelFrase = new JPanel(new BorderLayout(8, 8));
+        panelFrase.add(new JLabel("Describa la reserva:"), BorderLayout.NORTH);
+        panelFrase.add(scrollFrase, BorderLayout.CENTER);
+        panelFrase.add(btnExtraerIA, BorderLayout.EAST);
+
+        panel.add(panelFrase, BorderLayout.NORTH);
+        return panel;
     }
 
     private JPanel construirFormulario() {
@@ -104,8 +158,18 @@ public class ReservaController extends JPanel {
         gbc.gridx = 1; gbc.gridy = 6;
         panel.add(cmbEstado, gbc);
 
+        gbc.gridx = 0; gbc.gridy = 7;
+        panel.add(new JLabel("Categorías requeridas:"), gbc);
+        modeloListaCategorias = new DefaultListModel<>();
+        listaCategorias = new JList<>(modeloListaCategorias);
+        listaCategorias.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        listaCategorias.setVisibleRowCount(4);
+        JScrollPane scrollCategorias = new JScrollPane(listaCategorias);
+        gbc.gridx = 1; gbc.gridy = 7;
+        panel.add(scrollCategorias, gbc);
+
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
-        btnAgregar = new JButton("Agregar");
+        btnAgregar = new JButton("Reservar");
         btnConsultar = new JButton("Consultar");
         btnModificar = new JButton("Modificar");
         btnEliminar = new JButton("Eliminar");
@@ -116,7 +180,7 @@ public class ReservaController extends JPanel {
         botones.add(btnEliminar);
         botones.add(btnLimpiar);
 
-        gbc.gridx = 0; gbc.gridy = 7;
+        gbc.gridx = 0; gbc.gridy = 8;
         gbc.gridwidth = 2;
         panel.add(botones, gbc);
 
@@ -137,13 +201,61 @@ public class ReservaController extends JPanel {
         return scroll;
     }
 
+    private void cargarCategorias() {
+        modeloListaCategorias.clear();
+        for (CategoriaRecurso categoria : categoriaService.listarTodos()) {
+            modeloListaCategorias.addElement(categoria);
+        }
+    }
+
     private void registrarEventos() {
         btnAgregar.addActionListener(e -> agregarReserva());
         btnConsultar.addActionListener(e -> consultarReserva());
         btnModificar.addActionListener(e -> modificarReserva());
         btnEliminar.addActionListener(e -> eliminarReserva());
         btnLimpiar.addActionListener(e -> limpiarCampos());
+        btnExtraerIA.addActionListener(e -> extraerConIA());
         tabla.getSelectionModel().addListSelectionListener(this::alSeleccionarFila);
+    }
+
+    /** Envía la frase escrita a la IA y llena el formulario con lo que interpretó. */
+    private void extraerConIA() {
+        String frase = txtFrase.getText();
+        try {
+            AiReservationResponse resultado = aiReservationService.interpretarSolicitud(frase);
+
+            txtActividad.setText(resultado.getActividad());
+            txtFecha.setText(resultado.getFecha().toString());
+            txtHoraInicio.setText(resultado.getHoraInicio().toString());
+            txtHoraFin.setText(resultado.getHoraFin().toString());
+
+            seleccionarCategoriasSugeridas(resultado.getCategorias());
+
+            mostrarMensaje("Datos extraídos. Revíselos y presione \"Reservar\" para confirmar.");
+
+        } catch (AiReservationException ex) {
+            mostrarError("No fue posible interpretar la solicitud: " + ex.getMessage());
+        }
+    }
+
+    /** Marca en la lista las categorías cuyo texto coincide con lo que devolvió la IA. */
+    private void seleccionarCategoriasSugeridas(List<CategoriaRecurso> categoriasSugeridas) {
+        listaCategorias.clearSelection();
+        if (categoriasSugeridas == null) {
+            return;
+        }
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < modeloListaCategorias.size(); i++) {
+            CategoriaRecurso categoriaReal = modeloListaCategorias.get(i);
+            boolean coincide = categoriasSugeridas.stream().anyMatch(sugerida ->
+                    sugerida.getDescripcion() != null
+                            && sugerida.getDescripcion().equalsIgnoreCase(categoriaReal.getDescripcion()));
+            if (coincide) {
+                indices.add(i);
+            }
+        }
+        int[] arr = indices.stream().mapToInt(Integer::intValue).toArray();
+        listaCategorias.setSelectedIndices(arr);
     }
 
     private void cargarTabla() {
@@ -179,7 +291,7 @@ public class ReservaController extends JPanel {
         cmbEstado.setSelectedItem(EstadoReserva.valueOf(String.valueOf(modeloTabla.getValueAt(fila, 6))));
     }
 
-    private Reserva construirReserva() {
+    private Reserva construirReservaBase() {
         return new Reserva(
                 txtId.getText(),
                 txtActividad.getText(),
@@ -191,12 +303,47 @@ public class ReservaController extends JPanel {
         );
     }
 
+    /**
+     * Busca disponibilidad para cada categoría seleccionada. Si alguna
+     * categoría no tiene recurso libre, no se asigna nada (registro
+     * completo, nunca parcial) y se informa cuál falló.
+     */
     private void agregarReserva() {
+        List<CategoriaRecurso> categoriasSeleccionadas = listaCategorias.getSelectedValuesList();
+        if (categoriasSeleccionadas.isEmpty()) {
+            mostrarError("Debe seleccionar al menos una categoría.");
+            return;
+        }
+
         try {
-            reservaService.registrar(construirReserva());
+            Reserva reserva = construirReservaBase();
+
+            List<DetalleReserva> detalles = new ArrayList<>();
+            List<String> categoriasNoDisponibles = new ArrayList<>();
+
+            for (CategoriaRecurso categoria : categoriasSeleccionadas) {
+                Recurso disponible = disponibilidadService.buscarRecursoDisponible(
+                        categoria, reserva.getFecha(), reserva.getHoraInicio(), reserva.getHoraFin());
+
+                if (disponible == null) {
+                    categoriasNoDisponibles.add(categoria.getDescripcion());
+                } else {
+                    detalles.add(new DetalleReserva(categoria, disponible));
+                }
+            }
+
+            if (!categoriasNoDisponibles.isEmpty()) {
+                mostrarError("No hay disponibilidad para: " + String.join(", ", categoriasNoDisponibles)
+                        + ". No se registró ningún recurso.");
+                return;
+            }
+
+            reserva.setDetalles(detalles);
+            reservaService.registrar(reserva);
             cargarTabla();
             limpiarCampos();
             mostrarMensaje("Reserva registrada correctamente.");
+
         } catch (RuntimeException ex) {
             mostrarError(ex.getMessage());
         }
@@ -217,7 +364,7 @@ public class ReservaController extends JPanel {
 
     private void modificarReserva() {
         try {
-            reservaService.actualizar(construirReserva());
+            reservaService.actualizar(construirReservaBase());
             cargarTabla();
             mostrarMensaje("Reserva modificada correctamente.");
         } catch (RuntimeException ex) {
@@ -227,7 +374,7 @@ public class ReservaController extends JPanel {
 
     private void eliminarReserva() {
         try {
-            reservaService.eliminar(construirReserva());
+            reservaService.eliminar(construirReservaBase());
             cargarTabla();
             limpiarCampos();
             mostrarMensaje("Reserva eliminada correctamente.");
@@ -253,7 +400,9 @@ public class ReservaController extends JPanel {
         txtHoraInicio.setText("");
         txtHoraFin.setText("");
         txtFuncionarioId.setText("");
+        txtFrase.setText("");
         cmbEstado.setSelectedIndex(0);
+        listaCategorias.clearSelection();
         tabla.clearSelection();
     }
 

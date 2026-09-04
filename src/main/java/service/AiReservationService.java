@@ -1,15 +1,10 @@
 package service;
 
 import com.google.genai.Client;
-import com.google.genai.gaos.models.interactions.CreateModelInteraction;
-import com.google.genai.gaos.models.interactions.Interaction;
-import com.google.genai.gaos.models.interactions.InteractionsInput;
-import com.google.genai.gaos.models.interactions.Model;
-import com.google.genai.gaos.models.operations.CreateInteractionRequestBody;
+import com.google.genai.types.GenerateContentResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import exception.AiReservationException;
-
 
 import java.time.LocalDate;
 
@@ -24,49 +19,48 @@ public class AiReservationService {
         }
 
         try {
-
-            // 1. Enviar solicitud a la IA
             String respuestaIA = consultarIA(solicitud);
 
-            // 2. Verificar que la IA haya respondido
             if (respuestaIA.trim().isEmpty()) {
                 throw new AiReservationException("La IA no devolvió una respuesta.");
             }
 
-            // 3. Convertir respuesta a nuestro objeto
             return convertirRespuesta(respuestaIA);
 
         } catch (AiReservationException e) {
             throw e;
-
         } catch (Exception e) {
             throw new AiReservationException("Ocurrió un error al procesar la solicitud.", e);
         }
     }
 
-
     private String consultarIA(String solicitud) throws AiReservationException {
         try {
-            Client client = new Client();
+            Client client = Client.builder().apiKey(System.getenv("GEMINI_API_KEY")).build();
 
-            CreateModelInteraction peticion = CreateModelInteraction.builder().model(Model.of("gemini-3.7-flash"))
-                    .input(InteractionsInput.of(construirPrompt(solicitud))).build();
+            GenerateContentResponse respuesta = client.models.generateContent(
+                    "gemini-3.6-flash",
+                    construirPrompt(solicitud),
+                    null
+            );
 
-            Interaction respuesta = client.interactions.create(CreateInteractionRequestBody.of(peticion)).interaction()
-                    .get();
+            String texto = respuesta.text();
 
-            String texto = respuesta.outputText().orElse("");
-
-            if (texto.isEmpty()) {
+            if (texto == null || texto.isBlank()) {
                 throw new AiReservationException("La IA no devolvió ningún resultado.");
             }
 
-            return texto;
-        } catch (AiReservationException e){
-            throw e;
+            // Limpiar bloques de markdown si la IA los incluye
+            texto = texto.strip();
+            if (texto.startsWith("```")) {
+                texto = texto.replaceAll("^```[a-zA-Z]*\\n?", "").replaceAll("```$", "").strip();
+            }
 
+            return texto;
+        } catch (AiReservationException e) {
+            throw e;
         } catch (Exception e) {
-            throw new AiReservationException("No se pudo conectar con la IA.", e);
+            throw new AiReservationException("No se pudo conectar con la IA: " + e.getMessage(), e);
         }
     }
 
@@ -116,22 +110,41 @@ public class AiReservationService {
 
     private AiReservationResponse convertirRespuesta(String respuestaIA) throws AiReservationException {
         try {
-            AiReservationResponse respuesta = gson.fromJson(respuestaIA, AiReservationResponse.class);
+            RawIA raw = gson.fromJson(respuestaIA, RawIA.class);
 
-            if (respuesta == null) {
-                throw new AiReservationException("La respuesta de la IA no) tiene el formato esperado.");
+            if (raw == null) {
+                throw new AiReservationException("La respuesta de la IA no tiene el formato esperado.");
             }
+
+            AiReservationResponse respuesta = new AiReservationResponse(
+                    raw.actividad,
+                    raw.fecha != null ? java.time.LocalDate.parse(raw.fecha) : null,
+                    raw.horaInicio != null ? java.time.LocalTime.parse(raw.horaInicio) : null,
+                    raw.horaFin != null ? java.time.LocalTime.parse(raw.horaFin) : null,
+                    raw.categorias != null
+                            ? raw.categorias.stream()
+                                .map(model.categorias.CategoriaRecurso::valueOf)
+                                .collect(java.util.stream.Collectors.toList())
+                            : null
+            );
+
             validarRespuesta(respuesta);
             return respuesta;
-        } catch(JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
             throw new AiReservationException("La respuesta de la IA tiene un formato inválido.", e);
-
         } catch (AiReservationException e) {
-                    throw e;
-
+            throw e;
         } catch (Exception e) {
             throw new AiReservationException("Ocurrió un error inesperado al convertir la respuesta de la IA.", e);
         }
+    }
+
+    private static class RawIA {
+        String actividad;
+        String fecha;
+        String horaInicio;
+        String horaFin;
+        java.util.List<String> categorias;
     }
 
     private void validarRespuesta(AiReservationResponse respuesta) throws AiReservationException {

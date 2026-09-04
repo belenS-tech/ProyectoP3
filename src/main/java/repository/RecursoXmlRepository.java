@@ -166,6 +166,6 @@ public class RecursoXmlRepository implements RecursoRepository {
 
     @Override
     public List<Recurso> listarTodos() {
-        return List.of();
+        return listar();
     }
 }

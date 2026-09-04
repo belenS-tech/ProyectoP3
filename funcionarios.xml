@@ -5,4 +5,9 @@
         <nombre>belen</nombre>
         <telefono>123</telefono>
     </funcionario>
+    <funcionario>
+        <id>123</id>
+        <nombre>juan</nombre>
+        <telefono>222</telefono>
+    </funcionario>
 </funcionarios>
