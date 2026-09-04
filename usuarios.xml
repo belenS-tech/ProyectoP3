@@ -5,9 +5,4 @@
         <id>admin</id>
         <rol>ADMINISTRADOR</rol>
     </usuario>
-    <usuario>
-        <clave>111</clave>
-        <id>111</id>
-        <rol>FUNCIONARIO</rol>
-    </usuario>
 </usuarios>
