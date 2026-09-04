@@ -1,6 +1,7 @@
 package repository;
 
 import model.Recurso;
+import model.categorias.CategoriaRecurso;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,10 +19,10 @@ import java.util.List;
 
 public class RecursoXmlRepository implements RecursoRepository {
 
-    private final String archivo = "src/main/java/model/recursos/recursos.xml";
+    private final String archivo = "src/main/resources/data/recursos.xml";
 
     @Override
-    public void guardar(Recurso recurso){
+    public void guardar(Recurso recurso) {
         try {
             File file = new File(archivo);
 
@@ -39,7 +40,7 @@ public class RecursoXmlRepository implements RecursoRepository {
             elementoRecurso.appendChild(elementoId);
 
             Element elementoCategoria = document.createElement("categoria");
-            elementoCategoria.setTextContent(recurso.getCategoria().toString());
+            elementoCategoria.setTextContent(recurso.getCategoria().getId());
             elementoRecurso.appendChild(elementoCategoria);
 
             Element elementoDescripcion = document.createElement("descripcion");
@@ -54,7 +55,7 @@ public class RecursoXmlRepository implements RecursoRepository {
             StreamResult result = new StreamResult(new File(archivo));
             transformer.transform(source, result);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -75,7 +76,7 @@ public class RecursoXmlRepository implements RecursoRepository {
                 String id = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
                 String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
                 String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
-                Recurso recurso = new Recurso(Integer.parseInt(id), CategoriaRecurso.valueOf(categoria), descripcion);
+                Recurso recurso = new Recurso(id, CategoriaRecurso.valueOf(categoria), descripcion);
                 recursos.add(recurso);
                 System.out.println("Recurso ID: " + id + ", Categoria: " + categoria + ", Descripcion: " + descripcion);
             }
@@ -88,27 +89,12 @@ public class RecursoXmlRepository implements RecursoRepository {
     }
 
     @Override
-    public Recurso buscarPorId(int id) {
-        try {
-            File file = new File(archivo);
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(archivo);
-
-            NodeList nodeList = document.getElementsByTagName("recurso");
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Element elementoRecurso = (Element) nodeList.item(i);
-                String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                if (Integer.parseInt(idRecurso) == id) {
-                    String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
-                    String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
-                    return new Recurso(Integer.parseInt(idRecurso), CategoriaRecurso.valueOf(categoria), descripcion);
-                }
+    public Recurso buscarPorId(String id) {
+        List<Recurso> recursos = listar();
+        for (Recurso recurso : recursos) {
+            if (recurso.getId().equals(id)) {
+                return recurso;
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -126,8 +112,8 @@ public class RecursoXmlRepository implements RecursoRepository {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element elementoRecurso = (Element) nodeList.item(i);
                 String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                if (Integer.parseInt(idRecurso) == Integer.parseInt(String.valueOf(recurso.getId()))) {
-                    elementoRecurso.getElementsByTagName("categoria").item(0).setTextContent(recurso.getCategoria().toString());
+                if (idRecurso.equals(recurso.getId())) {
+                    elementoRecurso.getElementsByTagName("categoria").item(0).setTextContent(recurso.getCategoria().getId());
                     elementoRecurso.getElementsByTagName("descripcion").item(0).setTextContent(recurso.getDescripcion());
                     break;
                 }
@@ -148,16 +134,15 @@ public class RecursoXmlRepository implements RecursoRepository {
     public void eliminar(Recurso recurso) {
         try {
             File file = new File(archivo);
-
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(archivo);
+            Document document = builder.parse(file);
 
             NodeList nodeList = document.getElementsByTagName("recurso");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element elementoRecurso = (Element) nodeList.item(i);
                 String idRecurso = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                if (Integer.parseInt(idRecurso) == Integer.parseInt(String.valueOf(recurso.getId()))) {
+                if (idRecurso.equals(recurso.getId())) {
                     elementoRecurso.getParentNode().removeChild(elementoRecurso);
                     break;
                 }
@@ -172,6 +157,5 @@ public class RecursoXmlRepository implements RecursoRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 }
