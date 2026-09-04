@@ -1,31 +1,25 @@
 package controller.Calendarizacion;
-/*
+
 import model.Recurso;
-import model.CategoriaRecurso;
-import model.calendarizacion.FilaCalendarizacion;
+import model.categorias.CategoriaRecurso;
+import model.Calendarizacion.FilaCalendarizacion;
 import report.PdfReportService;
 import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
-import repository.CategoriaRepository;
 import repository.RecursoRepository;
 import repository.ReservaRepository;
-import service.CalendarizacionRecursosService;
-import service.ResultadoCalendarizacion;
-import util.SessionManager;
+import service.Calendarizacion.CalendarizacionRecursosService;
+import service.Calendarizacion.ResultadoCalendarizacion;
+import service.categorias.CategoriaService;
+import service.login.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Pantalla de Calendarización de Recursos. Es un JPanel (no un
- * JFrame) para poder insertarse dentro de la pestaña correspondiente
- * de la ventana principal (MainView), tal como exige el equipo.
 
 public class CalendarizacionRecursosPanel extends JPanel {
 
@@ -38,7 +32,7 @@ public class CalendarizacionRecursosPanel extends JPanel {
     private final DefaultTableModel modeloTabla;
 
     private CalendarizacionRecursosService service;
-    private CategoriaRepository categoriaRepo;
+    private CategoriaService categoriaService;
     private final PdfReportService pdfReportService = new PdfReportService();
 
     private ResultadoCalendarizacion ultimoResultado;
@@ -87,18 +81,18 @@ public class CalendarizacionRecursosPanel extends JPanel {
         btnImprimir.addActionListener(e -> onImprimir());
     }
 
-    /** Inyección de dependencias reales. Llamar antes de mostrar el panel.
+    /** Inyección de dependencias reales. Llamar antes de mostrar el panel. */
     public void configurarDependencias(RecursoRepository recursoRepo,
                                        ReservaRepository reservaRepo,
-                                       CategoriaRepository categoriaRepo) {
+                                       CategoriaService categoriaService) {
         this.service = new CalendarizacionRecursosService(recursoRepo, reservaRepo);
-        this.categoriaRepo = categoriaRepo;
+        this.categoriaService = categoriaService;
         cargarCategorias();
     }
 
     private void cargarCategorias() {
         categoriaCombo.removeAllItems();
-        for (CategoriaRecurso categoria : categoriaRepo.listarTodas()) {
+        for (CategoriaRecurso categoria : categoriaService.listarTodos()) {
             categoriaCombo.addItem(categoria);
         }
     }
@@ -204,4 +198,3 @@ public class CalendarizacionRecursosPanel extends JPanel {
         }
     }
 }
-*/

@@ -158,4 +158,14 @@ public class RecursoXmlRepository implements RecursoRepository {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public List<Recurso> buscarPorCategoria(String categoriaId) {
+        return List.of();
+    }
+
+    @Override
+    public List<Recurso> listarTodos() {
+        return List.of();
+    }
 }

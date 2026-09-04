@@ -1,16 +1,16 @@
 package controller.Actividades;
 
-/*
-import model.actividades.FilaActividad;
+
+import model.Actividades.FilaActividad;
 import report.PdfReportService;
 import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
 import repository.ReservaRepository;
-import service.ProgramacionActividadesService;
-import service.ResultadoProgramacionActividades;
+import service.Actividades.ProgramacionActividadesService;
+import service.Actividades.ResultadoProgramacionActividades;
 import util.DateUtils;
-import util.SessionManager;
+import service.login.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -170,5 +170,3 @@ public class ProgramacionActividadesPanel extends JPanel {
         }
     }
 }
-
- */
