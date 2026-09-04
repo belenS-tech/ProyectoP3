@@ -1,6 +1,7 @@
 package service.Actividades;
 
-/* import model.Reserva;
+import model.EstadoReserva;
+import model.Reserva;
 import repository.ReservaRepository;
 import util.DateUtils;
 
@@ -9,10 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-
- * Calcula, para un período "desde"/"hasta", cuántas actividades
- * (reservas activas) hubo en cada semana comprendida en ese período.
 
 public class EstadisticasActividadesService {
 
@@ -22,7 +21,6 @@ public class EstadisticasActividadesService {
         this.reservaRepo = reservaRepo;
     }
 
-    /** Devuelve un mapa ordenado por semana: "Semana del X al Y" -> cantidad de actividades.
     public LinkedHashMap<String, Integer> calcular(LocalDate desde, LocalDate hasta) {
         if (desde == null || hasta == null) {
             throw new IllegalArgumentException("Debe indicar ambas fechas, desde y hasta.");
@@ -31,7 +29,10 @@ public class EstadisticasActividadesService {
             throw new IllegalArgumentException("La fecha 'desde' no puede ser posterior a la fecha 'hasta'.");
         }
 
-        List<Reserva> reservas = reservaRepo.buscarActivasEntre(desde, hasta);
+        List<Reserva> reservas = reservaRepo.listar().stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVA)
+                .filter(r -> !r.getFecha().isBefore(desde) && !r.getFecha().isAfter(hasta))
+                .collect(Collectors.toList());
 
         TreeMap<LocalDate, Integer> conteoPorInicioSemana = new TreeMap<>();
         for (Reserva reserva : reservas) {
@@ -46,4 +47,3 @@ public class EstadisticasActividadesService {
         return resultado;
     }
 }
-*/

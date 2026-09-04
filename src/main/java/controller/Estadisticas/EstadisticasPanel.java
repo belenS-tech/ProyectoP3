@@ -1,7 +1,7 @@
 package controller.Estadisticas;
 
 
-//import repository.ReservaRepository;
+import repository.ReservaRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +14,7 @@ import java.awt.*;
  * Es un JPanel (no JFrame) porque a su vez debe encajar dentro de la
  * pestaña "Estadísticas" de la ventana principal (MainView).
  */
-/*public class EstadisticasPanel extends JPanel {
+public class EstadisticasPanel extends JPanel {
 
     private final JTabbedPane tabbedPane;
     private final EstadisticasActividadesPanel panelActividades;
@@ -32,7 +32,7 @@ import java.awt.*;
      *
      * @param reservaRepo               repositorio real de reservas (Integrante 2)
      * @param panelEstadisticasRecursos JPanel ya construido por Integrante 1
-
+*/
     public void configurarDependencias(ReservaRepository reservaRepo, JPanel panelEstadisticasRecursos) {
         panelActividades.configurarDependencias(reservaRepo);
 
@@ -40,4 +40,3 @@ import java.awt.*;
         tabbedPane.addTab("Estadísticas de Actividades", panelActividades);
     }
 }
-*/

@@ -1,7 +1,8 @@
 package service.Actividades;
 
-/*
-import model.actividades.FilaActividad;
+
+import model.Actividades.FilaActividad;
+import model.EstadoReserva;
 import model.Reserva;
 import repository.ReservaRepository;
 import util.DateUtils;
@@ -10,11 +11,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
+/*
  * Construye la matriz de programación semanal: filas = horas del
  * día, columnas = días de la semana de referencia, celdas =
  * actividades programadas (puede haber varias por celda).
+*/
 
 public class ProgramacionActividadesService {
 
@@ -40,7 +43,10 @@ public class ProgramacionActividadesService {
             dias.add(d);
         }
 
-        List<Reserva> reservasSemana = reservaRepo.buscarActivasEntre(inicio, fin);
+        List<Reserva> reservasSemana = reservaRepo.listar().stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVA)
+                .filter(r -> !r.getFecha().isBefore(inicio) && !r.getFecha().isAfter(fin))
+                .collect(Collectors.toList());
 
         List<FilaActividad> filas = new ArrayList<>();
         for (LocalTime hora = HORA_INICIO_DIA; hora.isBefore(HORA_FIN_DIA); hora = hora.plusHours(1)) {
@@ -63,11 +69,10 @@ public class ProgramacionActividadesService {
             boolean estaEnRango = !hora.isBefore(reserva.getHoraInicio()) && hora.isBefore(reserva.getHoraFin());
             if (!estaEnRango) continue;
 
-            actividadesEnCelda.add(reserva.getActividad() + " (" + reserva.getFuncionarioNombre() + ")");
+            actividadesEnCelda.add(reserva.getActividad() + " (" + reserva.getFuncionarioId() + ")");
         }
 
         return String.join(" | ", actividadesEnCelda);
     }
 }
 
- */
