@@ -30,8 +30,16 @@
             <artifactId>jaxb-runtime</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <!-- Juan:  -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Juan: hasta acá -->
     </dependencies>
-    <!-- agregado por Juan: plugins de pruebas -->
+    <!-- Juan: los plugins de pruebas -->
     <build>
         <plugins>
             <plugin>
