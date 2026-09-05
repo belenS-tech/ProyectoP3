@@ -161,7 +161,11 @@ public class RecursoXmlRepository implements RecursoRepository {
 
     @Override
     public List<Recurso> buscarPorCategoria(String categoriaId) {
-        return List.of();
+        return listar().stream()
+                .filter(recurso -> recurso.getCategoria() != null
+                        && categoriaId != null
+                        && categoriaId.equals(recurso.getCategoria().getId()))
+                .toList();
     }
 
     @Override
