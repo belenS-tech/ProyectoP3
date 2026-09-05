@@ -1,7 +1,8 @@
 package service.Calendarizacion;
-/*
+
 import model.DetalleReserva;
 import model.Calendarizacion.FilaCalendarizacion;
+import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
 import repository.RecursoRepository;
@@ -11,12 +12,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Construye la matriz de calendarización: filas = horas del día,
  * columnas = recursos de la categoría seleccionada, celdas =
  * disponibilidad o actividad+funcionario si está ocupado.
-
+*/
 public class CalendarizacionRecursosService {
 
     private static final LocalTime HORA_INICIO_DIA = LocalTime.of(6, 0);
@@ -43,7 +45,10 @@ public class CalendarizacionRecursosService {
             return new ResultadoCalendarizacion(recursos, new ArrayList<>());
         }
 
-        List<Reserva> reservasDelDia = reservaRepo.buscarActivasPorFecha(fecha);
+        List<Reserva> reservasDelDia = reservaRepo.listar().stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVA)
+                .filter(r -> fecha.equals(r.getFecha()))
+                .collect(Collectors.toList());
 
         List<FilaCalendarizacion> filas = new ArrayList<>();
         for (LocalTime hora = HORA_INICIO_DIA; hora.isBefore(HORA_FIN_DIA); hora = hora.plusHours(1)) {
@@ -64,14 +69,13 @@ public class CalendarizacionRecursosService {
             if (!estaEnRango) continue;
 
             for (DetalleReserva detalle : reserva.getDetalles()) {
-                boolean mismaCategoria = detalle.getCategoriaId().equals(categoriaId);
-                boolean mismoRecurso = detalle.getRecursoId().equals(recursoId);
+                boolean mismaCategoria = detalle.getCategoria().equals(categoriaId);
+                boolean mismoRecurso = detalle.getRecurso().equals(recursoId);
                 if (mismaCategoria && mismoRecurso) {
-                    return reserva.getActividad() + " - " + reserva.getFuncionarioNombre();
+                    return reserva.getActividad() + " - " + reserva.getFuncionarioId();
                 }
             }
         }
         return "";
     }
 }
-*/

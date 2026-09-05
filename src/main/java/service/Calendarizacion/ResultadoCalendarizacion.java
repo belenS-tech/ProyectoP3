@@ -1,10 +1,11 @@
 package service.Calendarizacion;
 
-//import model.Recurso;
+import model.Calendarizacion.FilaCalendarizacion;
+import model.Recurso;
 
-/*import java.util.List;
+import java.util.List;
 public class ResultadoCalendarizacion {
-    //private final List<Recurso> recursos;
+    private final List<Recurso> recursos;
     private final List<FilaCalendarizacion> filas;
 
     public ResultadoCalendarizacion(List<Recurso> recursos, List<FilaCalendarizacion> filas) {
@@ -24,4 +25,4 @@ public class ResultadoCalendarizacion {
     }
 }
 
- */
+

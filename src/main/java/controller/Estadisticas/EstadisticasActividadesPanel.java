@@ -1,6 +1,4 @@
 package controller.Estadisticas;
-/*
-package controller.estadisticas;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -13,8 +11,8 @@ import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
 import repository.ReservaRepository;
-import service.EstadisticasActividadesService;
-import util.SessionManager;
+import service.Actividades.EstadisticasActividadesService;
+import service.login.SessionManager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -33,6 +31,7 @@ import java.util.Map;
  *   <artifactId>jfreechart</artifactId>
  *   <version>1.5.4</version>
  * </dependency>
+ */
 
 public class EstadisticasActividadesPanel extends JPanel {
 
@@ -171,7 +170,7 @@ public class EstadisticasActividadesPanel extends JPanel {
                     .getDefaultDirectory().getPath();
             String ruta = carpetaDescargas + "/estadisticas_actividades_" + ultimoDesde + "_" + ultimoHasta + ".pdf";
 
-            pdfReportService.generarReporteConGrafico(ruta, header, tabla, imagenGrafico);
+            pdfReportService.reporteGrafico(ruta, header, tabla, imagenGrafico);
             lblMensaje.setForeground(new Color(0, 122, 47));
             lblMensaje.setText("Reporte generado en: " + ruta);
 
@@ -181,7 +180,7 @@ public class EstadisticasActividadesPanel extends JPanel {
         }
     }
 
-    /** Captura el JFreeChart como imagen PNG, sin depender de JavaFX.
+
     private byte[] capturarGraficoComoPng() throws Exception {
         BufferedImage imagen = grafico.createBufferedImage(480, 320);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -189,5 +188,3 @@ public class EstadisticasActividadesPanel extends JPanel {
         return buffer.toByteArray();
     }
 }
-
-*/
