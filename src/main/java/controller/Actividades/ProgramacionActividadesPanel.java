@@ -1,16 +1,16 @@
 package controller.Actividades;
 
-/*
-import model.actividades.FilaActividad;
+
+import model.Actividades.FilaActividad;
 import report.PdfReportService;
 import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
 import repository.ReservaRepository;
-import service.ProgramacionActividadesService;
-import service.ResultadoProgramacionActividades;
+import service.Actividades.ProgramacionActividadesService;
+import service.Actividades.ResultadoProgramacionActividades;
 import util.DateUtils;
-import util.SessionManager;
+import service.login.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -156,9 +156,11 @@ public class ProgramacionActividadesPanel extends JPanel {
                     filtros
             );
 
-            String carpetaDescargas = javax.swing.filechooser.FileSystemView.getFileSystemView()
-                    .getDefaultDirectory().getPath();
-            String ruta = carpetaDescargas + "/actividades_" + ultimaFechaReferencia + ".pdf";
+            String nombreSugerido = "actividades_" + ultimaFechaReferencia + ".pdf";
+            String ruta = elegirRutaGuardado(nombreSugerido);
+            if (ruta == null) {
+                return;
+            }
 
             pdfReportService.generarReporteMatriz(ruta, header, tabla);
             lblMensaje.setForeground(new Color(0, 122, 47));
@@ -169,6 +171,23 @@ public class ProgramacionActividadesPanel extends JPanel {
             lblMensaje.setText("Error al generar el PDF: " + e.getMessage());
         }
     }
-}
+    /** Abre un diálogo "Guardar como" y devuelve la ruta elegida, o null si el usuario cancela. */
+    private String elegirRutaGuardado(String nombreSugerido) {
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Guardar reporte PDF");
+        selector.setSelectedFile(new java.io.File(nombreSugerido));
+        selector.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF (*.pdf)", "pdf"));
 
- */
+        int resultado = selector.showSaveDialog(this);
+        if (resultado != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        java.io.File archivo = selector.getSelectedFile();
+        String ruta = archivo.getAbsolutePath();
+        if (!ruta.toLowerCase().endsWith(".pdf")) {
+            ruta += ".pdf";
+        }
+        return ruta;
+    }
+}

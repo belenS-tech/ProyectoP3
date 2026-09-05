@@ -1,17 +1,19 @@
 package controller.Estadisticas;
 
+import model.Recurso;
+import model.Reserva;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
-
+import repository.RecursoRepository;
+import repository.RecursoXmlRepository;
+import repository.ReservaRepository;
 import report.PdfReportService;
 import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
-import repository.ReservaRepository;
-import service.Actividades.EstadisticasActividadesService;
 import service.login.SessionManager;
 
 import javax.imageio.ImageIO;
@@ -20,23 +22,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Requiere la dependencia de JFreeChart en el pom.xml:
- * <dependency>
- *   <groupId>org.jfree</groupId>
- *   <artifactId>jfreechart</artifactId>
- *   <version>1.5.4</version>
- * </dependency>
- */
+public class EstadisticasRecursosPanel extends JPanel {
 
-public class EstadisticasActividadesPanel extends JPanel {
-
-    private final JSpinner fechaDesdeSpinner;
-    private final JSpinner fechaHastaSpinner;
     private final JButton btnCalcular;
     private final JButton btnImprimir;
     private final JLabel lblMensaje;
@@ -46,51 +37,41 @@ public class EstadisticasActividadesPanel extends JPanel {
     private final JFreeChart grafico;
     private final ChartPanel panelGrafico;
 
-    private EstadisticasActividadesService service;
+    private ReservaRepository reservaRepo;
+    private final RecursoRepository recursoRepo = new RecursoXmlRepository();
     private final PdfReportService pdfReportService = new PdfReportService();
 
     private LinkedHashMap<String, Integer> ultimoResultado;
-    private LocalDate ultimoDesde;
-    private LocalDate ultimoHasta;
 
-    public EstadisticasActividadesPanel() {
+    public EstadisticasRecursosPanel() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel titulo = new JLabel("Estadísticas de Actividades");
+        JLabel titulo = new JLabel("Estadísticas de Recursos");
         titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 18f));
-
-        JPanel panelFiltros = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        fechaDesdeSpinner = new JSpinner(new SpinnerDateModel());
-        fechaDesdeSpinner.setEditor(new JSpinner.DateEditor(fechaDesdeSpinner, "dd/MM/yyyy"));
-        fechaHastaSpinner = new JSpinner(new SpinnerDateModel());
-        fechaHastaSpinner.setEditor(new JSpinner.DateEditor(fechaHastaSpinner, "dd/MM/yyyy"));
-        btnCalcular = new JButton("Calcular");
-        btnImprimir = new JButton("Imprimir");
-        btnImprimir.setEnabled(false);
-
-        panelFiltros.add(new JLabel("Desde:"));
-        panelFiltros.add(fechaDesdeSpinner);
-        panelFiltros.add(new JLabel("Hasta:"));
-        panelFiltros.add(fechaHastaSpinner);
-        panelFiltros.add(btnCalcular);
-        panelFiltros.add(btnImprimir);
 
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.add(titulo, BorderLayout.NORTH);
-        panelSuperior.add(panelFiltros, BorderLayout.CENTER);
+
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        btnCalcular = new JButton("Calcular");
+        btnImprimir = new JButton("Imprimir");
+        btnImprimir.setEnabled(false);
+        panelBotones.add(btnCalcular);
+        panelBotones.add(btnImprimir);
+        panelSuperior.add(panelBotones, BorderLayout.CENTER);
 
         lblMensaje = new JLabel(" ");
         lblMensaje.setForeground(new Color(180, 0, 0));
 
-        modeloTabla = new DefaultTableModel(new Object[]{"Semana", "Cantidad"}, 0);
+        modeloTabla = new DefaultTableModel(new Object[]{"Recurso", "Reservas"}, 0);
         tablaEstadisticas = new JTable(modeloTabla);
         JScrollPane scrollTabla = new JScrollPane(tablaEstadisticas);
-        scrollTabla.setPreferredSize(new Dimension(400, 160));
+        scrollTabla.setPreferredSize(new Dimension(350, 160));
 
         dataset = new DefaultCategoryDataset();
         grafico = ChartFactory.createBarChart(
-                "Actividades por semana", "Semana", "Cantidad",
+                "Reservas por recurso", "Recurso", "Cantidad",
                 dataset, PlotOrientation.VERTICAL, false, true, false);
         panelGrafico = new ChartPanel(grafico);
         panelGrafico.setPreferredSize(new Dimension(500, 320));
@@ -108,45 +89,42 @@ public class EstadisticasActividadesPanel extends JPanel {
     }
 
     public void configurarDependencias(ReservaRepository reservaRepo) {
-        this.service = new EstadisticasActividadesService(reservaRepo);
+        this.reservaRepo = reservaRepo;
     }
 
     private void onCalcular() {
-        if (service == null) {
+        if (reservaRepo == null) {
             lblMensaje.setText("El servicio no está configurado.");
             return;
         }
-        lblMensaje.setText(" ");
-        LocalDate desde = obtenerFecha(fechaDesdeSpinner);
-        LocalDate hasta = obtenerFecha(fechaHastaSpinner);
 
-        try {
-            LinkedHashMap<String, Integer> resultado = service.calcular(desde, hasta);
-            this.ultimoResultado = resultado;
-            this.ultimoDesde = desde;
-            this.ultimoHasta = hasta;
+        List<Recurso> recursos = recursoRepo.listarTodos();
+        List<Reserva> reservas = reservaRepo.listar();
 
-            modeloTabla.setRowCount(0);
-            dataset.clear();
-            for (Map.Entry<String, Integer> entry : resultado.entrySet()) {
-                modeloTabla.addRow(new Object[]{entry.getKey(), entry.getValue()});
-                dataset.addValue(entry.getValue(), "Actividades", entry.getKey());
-            }
-
-            if (resultado.isEmpty()) {
-                lblMensaje.setText("No se encontraron actividades en el período seleccionado.");
-            }
-            btnImprimir.setEnabled(true);
-
-        } catch (IllegalArgumentException e) {
-            lblMensaje.setText(e.getMessage());
-            btnImprimir.setEnabled(false);
+        LinkedHashMap<String, Integer> resultado = new LinkedHashMap<>();
+        for (Recurso recurso : recursos) {
+            long count = reservas.stream()
+                    .flatMap(r -> r.getDetalles().stream())
+                    .filter(d -> d.getRecurso() != null && d.getRecurso().getId().equals(recurso.getId()))
+                    .count();
+            resultado.put(recurso.getDescripcion(), (int) count);
         }
-    }
 
-    private LocalDate obtenerFecha(JSpinner spinner) {
-        java.util.Date fechaUtil = (java.util.Date) spinner.getValue();
-        return fechaUtil.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        this.ultimoResultado = resultado;
+        modeloTabla.setRowCount(0);
+        dataset.clear();
+
+        for (Map.Entry<String, Integer> entry : resultado.entrySet()) {
+            modeloTabla.addRow(new Object[]{entry.getKey(), entry.getValue()});
+            dataset.addValue(entry.getValue(), "Reservas", entry.getKey());
+        }
+
+        if (resultado.isEmpty()) {
+            lblMensaje.setText("No hay recursos registrados.");
+        } else {
+            lblMensaje.setText(" ");
+        }
+        btnImprimir.setEnabled(true);
     }
 
     private void onImprimir() {
@@ -154,24 +132,20 @@ public class EstadisticasActividadesPanel extends JPanel {
             lblMensaje.setText("Primero debe calcular las estadísticas.");
             return;
         }
-
         try {
-            ReportTable tabla = new ReportTable(java.util.List.of("Semana", "Cantidad de actividades"));
+            ReportTable tabla = new ReportTable(java.util.List.of("Recurso", "Cantidad de reservas"));
             for (Map.Entry<String, Integer> entry : ultimoResultado.entrySet()) {
                 tabla.agregarFila(entry.getKey(), String.valueOf(entry.getValue()));
             }
 
-            String filtros = "Desde: " + ultimoDesde + " | Hasta: " + ultimoHasta;
             ReportHeader header = new ReportHeader(
-                    "Estadísticas de Actividades",
+                    "Estadísticas de Recursos",
                     SessionManager.getInstancia().getUsuarioActual().getId(),
-                    filtros
+                    null
             );
 
             byte[] imagenGrafico = capturarGraficoComoPng();
-
-            String nombreSugerido = "estadisticas_actividades_" + ultimoDesde + "_" + ultimoHasta + ".pdf";
-            String ruta = elegirRutaGuardado(nombreSugerido);
+            String ruta = elegirRutaGuardado("estadisticas_recursos.pdf");
             if (ruta == null) {
                 return;
             }
@@ -180,12 +154,14 @@ public class EstadisticasActividadesPanel extends JPanel {
             lblMensaje.setForeground(new Color(0, 122, 47));
             lblMensaje.setText("Reporte generado en: " + ruta);
 
-        } catch (Exception e) {
+        } catch (ReportException e) {
             lblMensaje.setForeground(new Color(180, 0, 0));
             lblMensaje.setText("Error al generar el PDF: " + e.getMessage());
+        } catch (Exception e) {
+            lblMensaje.setForeground(new Color(180, 0, 0));
+            lblMensaje.setText("Error: " + e.getMessage());
         }
     }
-
 
     private byte[] capturarGraficoComoPng() throws Exception {
         BufferedImage imagen = grafico.createBufferedImage(480, 320);

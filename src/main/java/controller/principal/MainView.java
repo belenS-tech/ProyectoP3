@@ -1,17 +1,25 @@
 package controller.principal;
 
+import controller.Actividades.ProgramacionActividadesPanel;
+import controller.Calendarizacion.CalendarizacionRecursosPanel;
+import controller.Estadisticas.EstadisticasPanel;
+import controller.Estadisticas.EstadisticasRecursosPanel;
+import controller.RecursoController;
+import controller.ReservaController;
 import controller.categorias.CategoriasController;
 import controller.categorias.CategoriasView;
 import controller.funcionarios.FuncionariosController;
 import controller.funcionarios.FuncionariosView;
-import controller.RecursoController;
-import controller.ReservaController;
 import model.login.Rol;
 import model.login.Usuario;
+import repository.RecursoXmlRepository;
+import repository.ReservaRepository;
+import repository.ReservaXmlRepository;
 import service.categorias.CategoriaService;
 import service.funcionarios.FuncionarioService;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
 
 /**
@@ -33,30 +41,47 @@ public class MainView extends JFrame {
                     CategoriaService categoriaService) {
         super("Sistema de Reserva de Recursos");
         construirVentana(usuarioActivo);
-        agregarPestanasSegunRol(usuarioActivo, funcionarioService, categoriaService);
+        ReservaRepository reservaRepo = new ReservaXmlRepository();
+        agregarPestanasSegunRol(usuarioActivo, funcionarioService, categoriaService, reservaRepo);
     }
 
     private void construirVentana(Usuario usuario) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 650);
+        setSize(1100, 700);
         setLocationRelativeTo(null);
+        setTitle("Sistema de Reserva de Recursos  —  " + usuario.getId() + " (" + usuario.getRol() + ")");
 
-        setTitle("Sistema de Reserva de Recursos - "
-                + usuario.getId() + " (" + usuario.getRol() + ")");
+        // Fondo general
+        getContentPane().setBackground(new Color(30, 30, 45));
 
         setJMenuBar(construirMenu());
 
         pestanas = new JTabbedPane();
+        pestanas.setBackground(new Color(45, 45, 65));
+        pestanas.setForeground(new Color(200, 200, 255));
+        pestanas.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        pestanas.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         setContentPane(pestanas);
     }
 
     private JMenuBar construirMenu() {
         JMenuBar barra = new JMenuBar();
+        barra.setBackground(new Color(45, 45, 65));
+        barra.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(99, 102, 241)));
+
         JMenu menuSistema = new JMenu("Sistema");
+        menuSistema.setForeground(new Color(200, 200, 255));
+        menuSistema.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         itemCambiarClave = new JMenuItem("Cambiar clave");
         itemCerrarSesion = new JMenuItem("Cerrar sesión");
         itemSalir = new JMenuItem("Salir");
+
+        for (JMenuItem item : new JMenuItem[]{itemCambiarClave, itemCerrarSesion, itemSalir}) {
+            item.setBackground(new Color(45, 45, 65));
+            item.setForeground(new Color(200, 200, 255));
+            item.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        }
 
         menuSistema.add(itemCambiarClave);
         menuSistema.addSeparator();
@@ -73,7 +98,8 @@ public class MainView extends JFrame {
      */
     private void agregarPestanasSegunRol(Usuario usuario,
                                          FuncionarioService funcionarioService,
-                                         CategoriaService categoriaService) {
+                                         CategoriaService categoriaService,
+                                         ReservaRepository reservaRepo) {
         if (usuario.getRol() == Rol.ADMINISTRADOR) {
             FuncionariosView vistaFuncionarios = new FuncionariosView();
             new FuncionariosController(vistaFuncionarios, funcionarioService);
@@ -86,11 +112,21 @@ public class MainView extends JFrame {
             agregarPestana("Recursos", new RecursoController(categoriaService));
         }
 
-        // Ambos roles: reservas, calendarización, actividades y estadísticas
-        agregarPestana("Reservas", new ReservaController());
-        agregarPestana("Calendarización", pendiente("Calendarización - Integrante 3"));
-        agregarPestana("Actividades", pendiente("Actividades - Integrante 3"));
-        agregarPestana("Estadísticas", pendiente("Estadísticas"));
+        agregarPestana("Reservas", new ReservaController(categoriaService));
+
+        CalendarizacionRecursosPanel panelCalendarizacion = new CalendarizacionRecursosPanel();
+        panelCalendarizacion.configurarDependencias(new RecursoXmlRepository(), reservaRepo, categoriaService);
+        agregarPestana("Calendarización", panelCalendarizacion);
+
+        ProgramacionActividadesPanel panelActividades = new ProgramacionActividadesPanel();
+        panelActividades.configurarDependencias(reservaRepo);
+        agregarPestana("Actividades", panelActividades);
+
+        EstadisticasRecursosPanel panelEstadisticasRecursos = new EstadisticasRecursosPanel();
+        panelEstadisticasRecursos.configurarDependencias(reservaRepo);
+        EstadisticasPanel panelEstadisticas = new EstadisticasPanel();
+        panelEstadisticas.configurarDependencias(reservaRepo, panelEstadisticasRecursos);
+        agregarPestana("Estadísticas", panelEstadisticas);
     }
 
     /**

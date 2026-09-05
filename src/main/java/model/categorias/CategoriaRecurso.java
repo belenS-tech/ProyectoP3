@@ -40,14 +40,21 @@ public class CategoriaRecurso {
                 || (descripcion == null || descripcion.isBlank());
     }
 
+    // Usa el texto como id, no genera el formato CAT-000001
+    /*public static CategoriaRecurso valueOf(String categoria) {
+        return new CategoriaRecurso(categoria, categoria);
+        return (id == null || id.isBlank()) && (descripcion == null || descripcion.isBlank());
+    }*/
 
-        // Usa el texto como id, no genera el formato CAT-000001
-        public static CategoriaRecurso valueOf (String categoria){
-            return new CategoriaRecurso(categoria, categoria);
-        }
-
-        @Override
-        public String toString () {
-            return descripcion;
-        }
+    // Usa el texto como id, no genera el formato CAT-000001
+    public static CategoriaRecurso valueOf(String categoria) {
+        return new CategoriaRecurso(categoria, categoria);
     }
+
+
+
+    @Override
+    public String toString() {
+        return descripcion;
+    }
+}
