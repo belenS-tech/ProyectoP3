@@ -10,4 +10,9 @@
         <nombre>juan</nombre>
         <telefono>222</telefono>
     </funcionario>
+    <funcionario>
+        <id>222</id>
+        <nombre>fio</nombre>
+        <telefono>12345</telefono>
+    </funcionario>
 </funcionarios>

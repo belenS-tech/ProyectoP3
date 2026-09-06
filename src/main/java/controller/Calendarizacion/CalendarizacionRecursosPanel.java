@@ -79,6 +79,7 @@ public class CalendarizacionRecursosPanel extends JPanel {
 
         btnCargar.addActionListener(e -> onCargar());
         btnImprimir.addActionListener(e -> onImprimir());
+        util.Tema.aplicar(this);
     }
 
     /** Inyección de dependencias reales. Llamar antes de mostrar el panel. */

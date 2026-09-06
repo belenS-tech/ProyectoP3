@@ -5,6 +5,7 @@ import model.categorias.CategoriaRecurso;
 import repository.RecursoXmlRepository;
 import service.RecursoService;
 import service.categorias.CategoriaService;
+import util.Tema;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -35,6 +36,7 @@ public class RecursoController extends JPanel {
         cargarCategorias();
         cargarTabla();
         registrarEventos();
+        Tema.aplicar(this);
     }
 
     private void construirPantalla() {
@@ -140,13 +142,9 @@ public class RecursoController extends JPanel {
     }
 
     private void alSeleccionarFila(ListSelectionEvent e) {
-        if (e.getValueIsAdjusting()) {
-            return;
-        }
+        if (e.getValueIsAdjusting()) return;
         int fila = tabla.getSelectedRow();
-        if (fila < 0) {
-            return;
-        }
+        if (fila < 0) return;
         txtId.setText(String.valueOf(modeloTabla.getValueAt(fila, 0)));
         seleccionarCategoria(String.valueOf(modeloTabla.getValueAt(fila, 1)));
         txtDescripcion.setText(String.valueOf(modeloTabla.getValueAt(fila, 2)));

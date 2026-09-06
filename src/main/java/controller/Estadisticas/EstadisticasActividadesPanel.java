@@ -24,14 +24,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Requiere la dependencia de JFreeChart en el pom.xml:
- * <dependency>
- *   <groupId>org.jfree</groupId>
- *   <artifactId>jfreechart</artifactId>
- *   <version>1.5.4</version>
- * </dependency>
- */
+
 
 public class EstadisticasActividadesPanel extends JPanel {
 
@@ -81,7 +74,7 @@ public class EstadisticasActividadesPanel extends JPanel {
         panelSuperior.add(panelFiltros, BorderLayout.CENTER);
 
         lblMensaje = new JLabel(" ");
-        lblMensaje.setForeground(new Color(180, 0, 0));
+        lblMensaje.setForeground(new Color(222, 137, 253, 187));
 
         modeloTabla = new DefaultTableModel(new Object[]{"Semana", "Cantidad"}, 0);
         tablaEstadisticas = new JTable(modeloTabla);
@@ -92,6 +85,9 @@ public class EstadisticasActividadesPanel extends JPanel {
         grafico = ChartFactory.createBarChart(
                 "Actividades por semana", "Semana", "Cantidad",
                 dataset, PlotOrientation.VERTICAL, false, true, false);
+        org.jfree.chart.plot.CategoryPlot plot = grafico.getCategoryPlot();
+        ((org.jfree.chart.renderer.category.BarRenderer) plot.getRenderer())
+                .setSeriesPaint(0, new Color(167, 139, 250));
         panelGrafico = new ChartPanel(grafico);
         panelGrafico.setPreferredSize(new Dimension(500, 320));
 
@@ -181,7 +177,7 @@ public class EstadisticasActividadesPanel extends JPanel {
             lblMensaje.setText("Reporte generado en: " + ruta);
 
         } catch (Exception e) {
-            lblMensaje.setForeground(new Color(180, 0, 0));
+            lblMensaje.setForeground(new Color(223, 95, 243));
             lblMensaje.setText("Error al generar el PDF: " + e.getMessage());
         }
     }
@@ -193,7 +189,6 @@ public class EstadisticasActividadesPanel extends JPanel {
         ImageIO.write(imagen, "png", buffer);
         return buffer.toByteArray();
     }
-    /** Abre un diálogo "Guardar como" y devuelve la ruta elegida, o null si el usuario cancela. */
     private String elegirRutaGuardado(String nombreSugerido) {
         JFileChooser selector = new JFileChooser();
         selector.setDialogTitle("Guardar reporte PDF");

@@ -2,10 +2,14 @@
 <categorias>
     <categoria>
         <id>CAT-000001</id>
-        <descripcion>estudio</descripcion>
+        <descripcion>Laptop Windows</descripcion>
     </categoria>
     <categoria>
         <id>CAT-000002</id>
-        <descripcion>juegos de mesa</descripcion>
+        <descripcion>Sala de juntas</descripcion>
+    </categoria>
+    <categoria>
+        <id>CAT-000003</id>
+        <descripcion>Sala para 10 personas</descripcion>
     </categoria>
 </categorias>
