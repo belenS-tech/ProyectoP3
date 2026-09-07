@@ -40,6 +40,19 @@
             <artifactId>google-genai</artifactId>
             <version>1.67.0</version>
         </dependency>
+        <!-- Juan: de acá para abajo es mío -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+        <!-- Juan: hasta acá -->
     </dependencies>
     <!-- agregado por Juan: plugins de pruebas -->
     <build>
