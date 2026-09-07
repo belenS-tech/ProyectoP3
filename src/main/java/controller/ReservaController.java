@@ -53,8 +53,8 @@ public class ReservaController extends JPanel {
     // --- Sección de Inteligencia Artificial ---
     private JTextArea txtFrase;
     private JButton btnExtraerIA;
-    private JList<CategoriaRecurso> listaCategorias;
-    private DefaultListModel<CategoriaRecurso> modeloListaCategorias;
+    private JPanel panelChecksCategorias;
+    private final List<JCheckBox> checksCategorias = new ArrayList<>();
 
     public ReservaController() {
         this(new CategoriaService(new CategoriaXmlRepository()));
@@ -171,11 +171,10 @@ public class ReservaController extends JPanel {
 
         gbc.gridx = 0; gbc.gridy = 7;
         panel.add(new JLabel("Categorías requeridas:"), gbc);
-        modeloListaCategorias = new DefaultListModel<>();
-        listaCategorias = new JList<>(modeloListaCategorias);
-        listaCategorias.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        listaCategorias.setVisibleRowCount(4);
-        JScrollPane scrollCategorias = new JScrollPane(listaCategorias);
+        panelChecksCategorias = new JPanel();
+        panelChecksCategorias.setLayout(new BoxLayout(panelChecksCategorias, BoxLayout.Y_AXIS));
+        JScrollPane scrollCategorias = new JScrollPane(panelChecksCategorias);
+        scrollCategorias.setPreferredSize(new Dimension(200, 80));
         gbc.gridx = 1; gbc.gridy = 7;
         panel.add(scrollCategorias, gbc);
 
@@ -213,10 +212,17 @@ public class ReservaController extends JPanel {
     }
 
     private void cargarCategorias() {
-        modeloListaCategorias.clear();
+        checksCategorias.clear();
+        panelChecksCategorias.removeAll();
         for (CategoriaRecurso categoria : new CategoriaService(new CategoriaXmlRepository()).listarTodos()) {
-            modeloListaCategorias.addElement(categoria);
+            JCheckBox chk = new JCheckBox(categoria.getDescripcion());
+            chk.putClientProperty("categoria", categoria);
+            chk.setBackground(util.Tema.FONDO);
+            checksCategorias.add(chk);
+            panelChecksCategorias.add(chk);
         }
+        panelChecksCategorias.revalidate();
+        panelChecksCategorias.repaint();
     }
 
     private void registrarEventos() {
@@ -261,24 +267,25 @@ public class ReservaController extends JPanel {
         }.execute();
     }
 
-    /** Marca en la lista las categorías cuyo texto coincide con lo que devolvió la IA. */
-    private void seleccionarCategoriasSugeridas(List<CategoriaRecurso> categoriasSugeridas) {
-        listaCategorias.clearSelection();
-        if (categoriasSugeridas == null) {
-            return;
-        }
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < modeloListaCategorias.size(); i++) {
-            CategoriaRecurso categoriaReal = modeloListaCategorias.get(i);
-            boolean coincide = categoriasSugeridas.stream().anyMatch(sugerida ->
-                    sugerida.getDescripcion() != null
-                            && sugerida.getDescripcion().equalsIgnoreCase(categoriaReal.getDescripcion()));
-            if (coincide) {
-                indices.add(i);
+    private List<CategoriaRecurso> getCategoriasSeleccionadas() {
+        List<CategoriaRecurso> seleccionadas = new ArrayList<>();
+        for (JCheckBox chk : checksCategorias) {
+            if (chk.isSelected()) {
+                seleccionadas.add((CategoriaRecurso) chk.getClientProperty("categoria"));
             }
         }
-        int[] arr = indices.stream().mapToInt(Integer::intValue).toArray();
-        listaCategorias.setSelectedIndices(arr);
+        return seleccionadas;
+    }
+
+    /** Marca en la lista las categorías cuyo texto coincide con lo que devolvió la IA. */
+    private void seleccionarCategoriasSugeridas(List<CategoriaRecurso> categoriasSugeridas) {
+        for (JCheckBox chk : checksCategorias) {
+            CategoriaRecurso cat = (CategoriaRecurso) chk.getClientProperty("categoria");
+            boolean coincide = categoriasSugeridas != null && categoriasSugeridas.stream()
+                    .anyMatch(s -> s.getDescripcion() != null
+                            && s.getDescripcion().equalsIgnoreCase(cat.getDescripcion()));
+            chk.setSelected(coincide);
+        }
     }
 
     private void cargarTabla() {
@@ -335,7 +342,7 @@ public class ReservaController extends JPanel {
      * completo, nunca parcial) y se informa cuál falló.
      */
     private void agregarReserva() {
-        List<CategoriaRecurso> categoriasSeleccionadas = listaCategorias.getSelectedValuesList();
+        List<CategoriaRecurso> categoriasSeleccionadas = getCategoriasSeleccionadas();
         if (categoriasSeleccionadas.isEmpty()) {
             mostrarError("Debe seleccionar al menos una categoría.");
             return;
@@ -428,7 +435,7 @@ public class ReservaController extends JPanel {
         txtFuncionarioId.setText("");
         txtFrase.setText("");
         cmbEstado.setSelectedIndex(0);
-        listaCategorias.clearSelection();
+        for (JCheckBox chk : checksCategorias) chk.setSelected(false);
         tabla.clearSelection();
     }
 

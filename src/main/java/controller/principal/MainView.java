@@ -112,7 +112,9 @@ public class MainView extends JFrame {
             agregarPestana("Recursos", new RecursoController(categoriaService));
         }
 
-        agregarPestana("Reservas", new ReservaController(categoriaService));
+        if (usuario.getRol() == Rol.FUNCIONARIO) {
+            agregarPestana("Reservas", new ReservaController(categoriaService));
+        }
 
         CalendarizacionRecursosPanel panelCalendarizacion = new CalendarizacionRecursosPanel();
         panelCalendarizacion.configurarDependencias(new RecursoXmlRepository(), reservaRepo, categoriaService);
