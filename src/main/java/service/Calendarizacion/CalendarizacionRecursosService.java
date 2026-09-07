@@ -69,8 +69,10 @@ public class CalendarizacionRecursosService {
             if (!estaEnRango) continue;
 
             for (DetalleReserva detalle : reserva.getDetalles()) {
-                boolean mismaCategoria = detalle.getCategoria().equals(categoriaId);
-                boolean mismoRecurso = detalle.getRecurso().equals(recursoId);
+                boolean mismaCategoria = detalle.getCategoria() != null
+                        && categoriaId.equals(detalle.getCategoria().getId());
+                boolean mismoRecurso = detalle.getRecurso() != null
+                        && recursoId.equals(detalle.getRecurso().getId());
                 if (mismaCategoria && mismoRecurso) {
                     return reserva.getActividad() + " - " + reserva.getFuncionarioId();
                 }

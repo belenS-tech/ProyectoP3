@@ -16,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RecursoXmlRepository implements RecursoRepository {
 
@@ -161,11 +162,13 @@ public class RecursoXmlRepository implements RecursoRepository {
 
     @Override
     public List<Recurso> buscarPorCategoria(String categoriaId) {
-        return List.of();
+        return listar().stream()
+                .filter(r -> r.getCategoria() != null && categoriaId.equals(r.getCategoria().getId()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
     public List<Recurso> listarTodos() {
-        return List.of();
+        return listar();
     }
 }

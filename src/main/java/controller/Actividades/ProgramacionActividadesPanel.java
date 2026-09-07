@@ -82,6 +82,7 @@ public class ProgramacionActividadesPanel extends JPanel {
 
         btnCargar.addActionListener(e -> onCargar());
         btnImprimir.addActionListener(e -> onImprimir());
+        util.Tema.aplicar(this);
     }
 
     public void configurarDependencias(ReservaRepository reservaRepo) {
@@ -156,9 +157,11 @@ public class ProgramacionActividadesPanel extends JPanel {
                     filtros
             );
 
-            String carpetaDescargas = javax.swing.filechooser.FileSystemView.getFileSystemView()
-                    .getDefaultDirectory().getPath();
-            String ruta = carpetaDescargas + "/actividades_" + ultimaFechaReferencia + ".pdf";
+            String nombreSugerido = "actividades_" + ultimaFechaReferencia + ".pdf";
+            String ruta = elegirRutaGuardado(nombreSugerido);
+            if (ruta == null) {
+                return;
+            }
 
             pdfReportService.generarReporteMatriz(ruta, header, tabla);
             lblMensaje.setForeground(new Color(0, 122, 47));
@@ -168,5 +171,24 @@ public class ProgramacionActividadesPanel extends JPanel {
             lblMensaje.setForeground(new Color(180, 0, 0));
             lblMensaje.setText("Error al generar el PDF: " + e.getMessage());
         }
+    }
+    /** Abre un diálogo "Guardar como" y devuelve la ruta elegida, o null si el usuario cancela. */
+    private String elegirRutaGuardado(String nombreSugerido) {
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Guardar reporte PDF");
+        selector.setSelectedFile(new java.io.File(nombreSugerido));
+        selector.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF (*.pdf)", "pdf"));
+
+        int resultado = selector.showSaveDialog(this);
+        if (resultado != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        java.io.File archivo = selector.getSelectedFile();
+        String ruta = archivo.getAbsolutePath();
+        if (!ruta.toLowerCase().endsWith(".pdf")) {
+            ruta += ".pdf";
+        }
+        return ruta;
     }
 }

@@ -3,6 +3,7 @@ package controller.principal;
 import controller.Actividades.ProgramacionActividadesPanel;
 import controller.Calendarizacion.CalendarizacionRecursosPanel;
 import controller.Estadisticas.EstadisticasPanel;
+import controller.Estadisticas.EstadisticasRecursosPanel;
 import controller.RecursoController;
 import controller.ReservaController;
 import controller.categorias.CategoriasController;
@@ -11,6 +12,7 @@ import controller.funcionarios.FuncionariosController;
 import controller.funcionarios.FuncionariosView;
 import model.login.Rol;
 import model.login.Usuario;
+import repository.RecursoXmlRepository;
 import repository.ReservaRepository;
 import repository.ReservaXmlRepository;
 import service.categorias.CategoriaService;
@@ -110,18 +112,20 @@ public class MainView extends JFrame {
             agregarPestana("Recursos", new RecursoController(categoriaService));
         }
 
-        agregarPestana("Reservas", new ReservaController());
+        agregarPestana("Reservas", new ReservaController(categoriaService));
 
         CalendarizacionRecursosPanel panelCalendarizacion = new CalendarizacionRecursosPanel();
-        panelCalendarizacion.configurarDependencias(null, reservaRepo, categoriaService);
+        panelCalendarizacion.configurarDependencias(new RecursoXmlRepository(), reservaRepo, categoriaService);
         agregarPestana("Calendarización", panelCalendarizacion);
 
         ProgramacionActividadesPanel panelActividades = new ProgramacionActividadesPanel();
         panelActividades.configurarDependencias(reservaRepo);
         agregarPestana("Actividades", panelActividades);
 
+        EstadisticasRecursosPanel panelEstadisticasRecursos = new EstadisticasRecursosPanel();
+        panelEstadisticasRecursos.configurarDependencias(reservaRepo);
         EstadisticasPanel panelEstadisticas = new EstadisticasPanel();
-        panelEstadisticas.configurarDependencias(reservaRepo, pendiente("Estadísticas de Recursos"));
+        panelEstadisticas.configurarDependencias(reservaRepo, panelEstadisticasRecursos);
         agregarPestana("Estadísticas", panelEstadisticas);
     }
 

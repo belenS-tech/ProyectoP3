@@ -27,7 +27,7 @@ public class LoginView extends JFrame {
 
     private void construirVentana() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(440, 340);
+        setSize(600, 450);
         setLocationRelativeTo(null);
         setResizable(false);
         getContentPane().setBackground(COLOR_FONDO);
@@ -45,7 +45,7 @@ public class LoginView extends JFrame {
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel titulo = new JLabel("Sistema de Reservas", SwingConstants.CENTER);
+        JLabel titulo = new JLabel("-- Sistema de Reservas --", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titulo.setForeground(COLOR_ACENTO);
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 3;

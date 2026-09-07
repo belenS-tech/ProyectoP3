@@ -79,6 +79,7 @@ public class CalendarizacionRecursosPanel extends JPanel {
 
         btnCargar.addActionListener(e -> onCargar());
         btnImprimir.addActionListener(e -> onImprimir());
+        util.Tema.aplicar(this);
     }
 
     /** Inyección de dependencias reales. Llamar antes de mostrar el panel. */
@@ -184,9 +185,11 @@ public class CalendarizacionRecursosPanel extends JPanel {
                     filtros
             );
 
-            String carpetaDescargas = javax.swing.filechooser.FileSystemView.getFileSystemView()
-                    .getDefaultDirectory().getPath();
-            String ruta = carpetaDescargas + "/calendarizacion_" + ultimaFecha + ".pdf";
+            String nombreSugerido = "calendarizacion_" + ultimaFecha + ".pdf";
+            String ruta = elegirRutaGuardado(nombreSugerido);
+            if (ruta == null) {
+                return; // el usuario canceló el diálogo
+            }
 
             pdfReportService.generarReporteMatriz(ruta, header, tabla);
             lblMensaje.setForeground(new Color(0, 122, 47));
@@ -196,5 +199,25 @@ public class CalendarizacionRecursosPanel extends JPanel {
             lblMensaje.setForeground(new Color(180, 0, 0));
             lblMensaje.setText("Error al generar el PDF: " + e.getMessage());
         }
+    }
+
+    /** Abre un diálogo "Guardar como" y devuelve la ruta elegida, o null si el usuario cancela. */
+    private String elegirRutaGuardado(String nombreSugerido) {
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Guardar reporte PDF");
+        selector.setSelectedFile(new java.io.File(nombreSugerido));
+        selector.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF (*.pdf)", "pdf"));
+
+        int resultado = selector.showSaveDialog(this);
+        if (resultado != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        java.io.File archivo = selector.getSelectedFile();
+        String ruta = archivo.getAbsolutePath();
+        if (!ruta.toLowerCase().endsWith(".pdf")) {
+            ruta += ".pdf";
+        }
+        return ruta;
     }
 }

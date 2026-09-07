@@ -51,4 +51,17 @@ public class CategoriaRecurso {
     public String toString() {
         return descripcion;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CategoriaRecurso)) return false;
+        CategoriaRecurso that = (CategoriaRecurso) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

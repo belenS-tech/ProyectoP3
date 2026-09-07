@@ -68,7 +68,7 @@ public class UsuarioXmlRepository implements UsuarioRepository {
 
     @Override
     public void guardar(Usuario usuario) {
-        eliminar(usuario.getId());
+        datos.getUsuarios().removeIf(u -> u.getId().equals(usuario.getId()));
         datos.getUsuarios().add(usuario);
         guardarEnArchivo();
     }
