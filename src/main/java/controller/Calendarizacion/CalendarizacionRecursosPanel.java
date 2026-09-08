@@ -17,6 +17,7 @@ import service.login.SessionManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,20 @@ public class CalendarizacionRecursosPanel extends JPanel {
         btnCargar = new JButton("Cargar");
         btnImprimir = new JButton("Imprimir");
         btnImprimir.setEnabled(false);
+
+        URL urlImprimir = getClass().getResource("/icons/imprimir.png");
+        if (urlImprimir != null) {
+            ImageIcon original = new ImageIcon(urlImprimir);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnImprimir.setIcon(new ImageIcon(img));
+        }
+
+        URL urlCargar = getClass().getResource("/icons/cargar.png");
+        if (urlCargar != null) {
+            ImageIcon original = new ImageIcon(urlCargar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnCargar.setIcon(new ImageIcon(img));
+        }
 
         panelFiltros.add(new JLabel("Fecha:"));
         panelFiltros.add(fechaSpinner);

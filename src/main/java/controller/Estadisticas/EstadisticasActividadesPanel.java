@@ -7,7 +7,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import report.PdfReportService;
-import report.ReportException;
 import report.ReportHeader;
 import report.ReportTable;
 import repository.ReservaRepository;
@@ -20,6 +19,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -68,6 +68,20 @@ public class EstadisticasActividadesPanel extends JPanel {
         btnCalcular = new JButton("Calcular");
         btnImprimir = new JButton("Imprimir");
         btnImprimir.setEnabled(false);
+
+        URL urlImprimir = getClass().getResource("/icons/imprimir.png");
+        if (urlImprimir != null) {
+            ImageIcon original = new ImageIcon(urlImprimir);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnImprimir.setIcon(new ImageIcon(img));
+        }
+
+        URL urlCalcular = getClass().getResource("/icons/cargar.png");
+        if (urlCalcular != null) {
+            ImageIcon original = new ImageIcon(urlCalcular);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnCalcular.setIcon(new ImageIcon(img));
+        }
 
         panelFiltros.add(new JLabel("Desde:"));
         panelFiltros.add(fechaDesdeSpinner);
