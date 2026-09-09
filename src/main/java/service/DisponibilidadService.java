@@ -4,7 +4,7 @@ import model.DetalleReserva;
 import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import repository.RecursoRepository;
 import repository.ReservaRepository;
 

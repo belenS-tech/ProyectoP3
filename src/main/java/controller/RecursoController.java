@@ -1,14 +1,14 @@
 package controller;
 
 import model.Recurso;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import report.PdfReportService;
 import report.ReportHeader;
 import report.ReportTable;
 import repository.RecursoXmlRepository;
 import service.RecursoService;
-import service.categorias.CategoriaService;
-import service.login.SessionManager;
+import service.CategoriaService;
+import service.SessionManager;
 import util.Tema;
 
 import javax.swing.*;
@@ -37,7 +37,7 @@ public class RecursoController extends JPanel {
     private JButton btnModificar;
     private JButton btnEliminar;
     private JButton btnLimpiar;
-
+    private JButton btnConsultar;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
@@ -115,7 +115,7 @@ public class RecursoController extends JPanel {
         btnModificar = new JButton("Modificar");
         btnEliminar = new JButton("Borrar");
         btnLimpiar = new JButton("Limpiar");
-
+        btnConsultar = new JButton("Consultar");
         URL urlBorrar = getClass().getResource("/icons/eliminar.png");
         if (urlBorrar != null) {
             ImageIcon original = new ImageIcon(urlBorrar);

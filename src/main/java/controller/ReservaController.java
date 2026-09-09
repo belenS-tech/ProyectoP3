@@ -1,11 +1,10 @@
 package controller;
 
-import exception.AiReservationException;
 import model.DetalleReserva;
 import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import repository.RecursoRepository;
 import repository.RecursoXmlRepository;
 import repository.ReservaXmlRepository;
@@ -13,8 +12,8 @@ import service.AiReservationResponse;
 import service.AiReservationService;
 import service.DisponibilidadService;
 import service.ReservaService;
-import service.categorias.CategoriaService;
-import service.categorias.CategoriaXmlRepository;
+import service.CategoriaService;
+import repository.CategoriaXmlRepository;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

@@ -5,6 +5,7 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import exception.AiReservationException;
+import model.CategoriaRecurso;
 
 import java.time.LocalDate;
 
@@ -123,7 +124,7 @@ public class AiReservationService {
                     raw.horaFin != null ? java.time.LocalTime.parse(raw.horaFin) : null,
                     raw.categorias != null
                             ? raw.categorias.stream()
-                                .map(model.categorias.CategoriaRecurso::valueOf)
+                                .map(CategoriaRecurso::valueOf)
                                 .collect(java.util.stream.Collectors.toList())
                             : null
             );
