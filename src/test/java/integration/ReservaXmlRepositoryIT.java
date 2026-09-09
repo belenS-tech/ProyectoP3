@@ -4,7 +4,7 @@ import model.DetalleReserva;
 import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

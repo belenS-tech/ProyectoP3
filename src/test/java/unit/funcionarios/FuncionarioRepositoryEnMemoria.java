@@ -1,7 +1,7 @@
 package unit.funcionarios;
 
-import model.funcionarios.Funcionario;
-import service.funcionarios.FuncionarioRepository;
+import model.Funcionario;
+import repository.FuncionarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;

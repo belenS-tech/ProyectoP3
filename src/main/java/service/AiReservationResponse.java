@@ -1,6 +1,6 @@
 package service;
 
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

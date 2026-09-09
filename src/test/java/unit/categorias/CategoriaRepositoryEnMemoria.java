@@ -1,12 +1,12 @@
 package unit.categorias;
 
-import model.categorias.CategoriaRecurso;
-import service.categorias.CategoriaRepository;
+import model.CategoriaRecurso;
+import repository.CategoriaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriaRepositoryEnMemoria implements CategoriaRepository {
+public class CategoriaRepositoryEnMemoria implements CategoriaRepository.CategoriaRepository {
 
     private final List<CategoriaRecurso> categorias = new ArrayList<>();
 

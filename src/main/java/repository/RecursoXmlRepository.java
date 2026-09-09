@@ -1,7 +1,7 @@
 package repository;
 
 import model.Recurso;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -16,6 +16,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Locale.filter;
 
 public class RecursoXmlRepository implements RecursoRepository {
 
@@ -167,6 +169,10 @@ public class RecursoXmlRepository implements RecursoRepository {
                         && categoriaId.equals(recurso.getCategoria().getId()))
                 .toList();
     }
+
+
+
+
 
     @Override
     public List<Recurso> listarTodos() {
