@@ -1,10 +1,14 @@
 package controller;
 
 import model.Recurso;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
+import report.PdfReportService;
+import report.ReportHeader;
+import report.ReportTable;
 import repository.RecursoXmlRepository;
 import service.RecursoService;
-import service.categorias.CategoriaService;
+import service.CategoriaService;
+import service.SessionManager;
 import util.Tema;
 
 import javax.swing.*;
@@ -19,14 +23,21 @@ public class RecursoController extends JPanel {
     private final CategoriaService categoriaService;
     private final RecursoService recursoService;
 
+    // Filtro
+    private JComboBox<CategoriaRecurso> cmbFiltroCategoria;
+    private JTextField txtFiltroDescripcion;
+    private JButton btnBuscar;
+    private JButton btnImprimir;
+
+    // Formulario
     private JTextField txtId;
     private JComboBox<CategoriaRecurso> cmbCategoria;
     private JTextField txtDescripcion;
     private JButton btnAgregar;
-    private JButton btnConsultar;
     private JButton btnModificar;
     private JButton btnEliminar;
     private JButton btnLimpiar;
+    private JButton btnConsultar;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
@@ -35,7 +46,7 @@ public class RecursoController extends JPanel {
         this.recursoService = new RecursoService(new RecursoXmlRepository());
         construirPantalla();
         cargarCategorias();
-        cargarTabla();
+        cargarTabla(recursoService.listarTodos());
         registrarEventos();
         Tema.aplicar(this);
     }
@@ -44,15 +55,33 @@ public class RecursoController extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel titulo = new JLabel("Gestión de Recursos");
-        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 18f));
-
         JPanel panelSuperior = new JPanel(new BorderLayout(10, 10));
-        panelSuperior.add(titulo, BorderLayout.NORTH);
+        panelSuperior.add(construirPanelFiltro(), BorderLayout.NORTH);
         panelSuperior.add(construirFormulario(), BorderLayout.CENTER);
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirTabla(), BorderLayout.CENTER);
+    }
+
+    private JPanel construirPanelFiltro() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        panel.setBorder(BorderFactory.createTitledBorder("Filtro"));
+
+        panel.add(new JLabel("Categoría:"));
+        cmbFiltroCategoria = new JComboBox<>();
+        cmbFiltroCategoria.setPreferredSize(new Dimension(160, 26));
+        panel.add(cmbFiltroCategoria);
+
+        panel.add(new JLabel("Descripción:"));
+        txtFiltroDescripcion = new JTextField(16);
+        panel.add(txtFiltroDescripcion);
+
+        btnBuscar = new JButton("Buscar");
+        btnImprimir = new JButton("Imprimir");
+        panel.add(btnBuscar);
+        panel.add(btnImprimir);
+
+        return panel;
     }
 
     private JPanel construirFormulario() {
@@ -82,12 +111,11 @@ public class RecursoController extends JPanel {
         panel.add(txtDescripcion, gbc);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
-        btnAgregar = new JButton("Agregar");
-        btnConsultar = new JButton("Consultar");
+        btnAgregar = new JButton("Guardar");
         btnModificar = new JButton("Modificar");
-        btnEliminar = new JButton("Eliminar");
+        btnEliminar = new JButton("Borrar");
         btnLimpiar = new JButton("Limpiar");
-
+        btnConsultar = new JButton("Consultar");
         URL urlBorrar = getClass().getResource("/icons/eliminar.png");
         if (urlBorrar != null) {
             ImageIcon original = new ImageIcon(urlBorrar);
@@ -124,7 +152,6 @@ public class RecursoController extends JPanel {
         }
 
         botones.add(btnAgregar);
-        botones.add(btnConsultar);
         botones.add(btnModificar);
         botones.add(btnEliminar);
         botones.add(btnLimpiar);
@@ -139,9 +166,7 @@ public class RecursoController extends JPanel {
     private JScrollPane construirTabla() {
         modeloTabla = new DefaultTableModel(new String[]{"ID", "Categoría", "Descripción"}, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
         tabla = new JTable(modeloTabla);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -151,8 +176,9 @@ public class RecursoController extends JPanel {
     }
 
     private void registrarEventos() {
-        btnAgregar.addActionListener(e -> agregarRecurso());
-        btnConsultar.addActionListener(e -> consultarRecurso());
+        btnBuscar.addActionListener(e -> buscar());
+        btnImprimir.addActionListener(e -> imprimir());
+        btnAgregar.addActionListener(e -> guardar());
         btnModificar.addActionListener(e -> modificarRecurso());
         btnEliminar.addActionListener(e -> eliminarRecurso());
         btnLimpiar.addActionListener(e -> limpiarCampos());
@@ -160,21 +186,68 @@ public class RecursoController extends JPanel {
     }
 
     private void cargarCategorias() {
+        List<CategoriaRecurso> cats = categoriaService.listarTodos();
+
+        cmbFiltroCategoria.removeAllItems();
+        cmbFiltroCategoria.addItem(new CategoriaRecurso("", "-- Todas --"));
+        for (CategoriaRecurso c : cats) cmbFiltroCategoria.addItem(c);
+
         cmbCategoria.removeAllItems();
-        for (CategoriaRecurso categoria : categoriaService.listarTodos()) {
-            cmbCategoria.addItem(categoria);
+        for (CategoriaRecurso c : cats) cmbCategoria.addItem(c);
+    }
+
+    private void cargarTabla(List<Recurso> recursos) {
+        modeloTabla.setRowCount(0);
+        for (Recurso r : recursos) {
+            modeloTabla.addRow(new Object[]{
+                    r.getId(),
+                    r.getCategoria() != null ? r.getCategoria().getDescripcion() : "",
+                    r.getDescripcion()
+            });
         }
     }
 
-    private void cargarTabla() {
-        modeloTabla.setRowCount(0);
-        List<Recurso> recursos = recursoService.listarTodos();
-        for (Recurso recurso : recursos) {
-            modeloTabla.addRow(new Object[]{
-                    recurso.getId(),
-                    recurso.getCategoria() != null ? recurso.getCategoria().getId() : "",
-                    recurso.getDescripcion()
-            });
+    private void buscar() {
+        CategoriaRecurso catFiltro = (CategoriaRecurso) cmbFiltroCategoria.getSelectedItem();
+        String descFiltro = txtFiltroDescripcion.getText().trim().toLowerCase();
+
+        List<Recurso> todos = recursoService.listarTodos();
+        List<Recurso> filtrados = todos.stream()
+                .filter(r -> catFiltro == null || catFiltro.getId().isBlank()
+                        || (r.getCategoria() != null && catFiltro.getId().equals(r.getCategoria().getId())))
+                .filter(r -> descFiltro.isBlank()
+                        || r.getDescripcion().toLowerCase().contains(descFiltro))
+                .toList();
+
+        cargarTabla(filtrados);
+    }
+
+    private void imprimir() {
+        CategoriaRecurso catFiltro = (CategoriaRecurso) cmbFiltroCategoria.getSelectedItem();
+        String descFiltro = txtFiltroDescripcion.getText().trim().toLowerCase();
+
+        List<Recurso> todos = recursoService.listarTodos();
+        List<Recurso> filtrados = todos.stream()
+                .filter(r -> catFiltro == null || catFiltro.getId().isBlank()
+                        || (r.getCategoria() != null && catFiltro.getId().equals(r.getCategoria().getId())))
+                .filter(r -> descFiltro.isBlank()
+                        || r.getDescripcion().toLowerCase().contains(descFiltro))
+                .toList();
+
+        try {
+            ReportTable tabla = new ReportTable(List.of("ID", "Categoría", "Descripción"));
+            for (Recurso r : filtrados) {
+                tabla.agregarFila(r.getId(),
+                        r.getCategoria() != null ? r.getCategoria().getDescripcion() : "",
+                        r.getDescripcion());
+            }
+            String usuario = SessionManager.getInstancia().getUsuarioActual().getId();
+            ReportHeader header = new ReportHeader("Listado de Recursos", usuario, null);
+            String ruta = "recursos.pdf";
+            new PdfReportService().generarReporteTabla(ruta, header, tabla);
+            JOptionPane.showMessageDialog(this, "Reporte generado: " + new java.io.File(ruta).getAbsolutePath());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al generar el reporte: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -183,87 +256,57 @@ public class RecursoController extends JPanel {
         int fila = tabla.getSelectedRow();
         if (fila < 0) return;
         txtId.setText(String.valueOf(modeloTabla.getValueAt(fila, 0)));
-        seleccionarCategoria(String.valueOf(modeloTabla.getValueAt(fila, 1)));
-        txtDescripcion.setText(String.valueOf(modeloTabla.getValueAt(fila, 2)));
-    }
-
-    private void seleccionarCategoria(String idCategoria) {
+        // buscar categoría por descripción para seleccionarla en el combo
+        String descCat = String.valueOf(modeloTabla.getValueAt(fila, 1));
         for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
-            CategoriaRecurso categoria = cmbCategoria.getItemAt(i);
-            if (categoria != null && idCategoria.equals(categoria.getId())) {
+            if (cmbCategoria.getItemAt(i).getDescripcion().equals(descCat)) {
                 cmbCategoria.setSelectedIndex(i);
-                return;
+                break;
             }
         }
+        txtDescripcion.setText(String.valueOf(modeloTabla.getValueAt(fila, 2)));
     }
 
     private Recurso construirRecurso() {
         return new Recurso(txtId.getText(), (CategoriaRecurso) cmbCategoria.getSelectedItem(), txtDescripcion.getText());
     }
 
-    private void agregarRecurso() {
+    private void guardar() {
         try {
             recursoService.registrar(construirRecurso());
-            cargarTabla();
+            cargarTabla(recursoService.listarTodos());
             limpiarCampos();
-            mostrarMensaje("Recurso registrado correctamente.");
+            JOptionPane.showMessageDialog(this, "Recurso guardado correctamente.");
         } catch (RuntimeException ex) {
-            mostrarError(ex.getMessage());
-        }
-    }
-
-    private void consultarRecurso() {
-        try {
-            Recurso recurso = recursoService.buscarPorId(txtId.getText());
-            if (recurso == null) {
-                mostrarMensaje("No se encontró el recurso.");
-                return;
-            }
-            mostrarEnFormulario(recurso);
-        } catch (RuntimeException ex) {
-            mostrarError(ex.getMessage());
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void modificarRecurso() {
         try {
             recursoService.actualizar(construirRecurso());
-            cargarTabla();
-            mostrarMensaje("Recurso modificado correctamente.");
+            cargarTabla(recursoService.listarTodos());
+            JOptionPane.showMessageDialog(this, "Recurso modificado correctamente.");
         } catch (RuntimeException ex) {
-            mostrarError(ex.getMessage());
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void eliminarRecurso() {
         try {
             recursoService.eliminar(construirRecurso());
-            cargarTabla();
+            cargarTabla(recursoService.listarTodos());
             limpiarCampos();
-            mostrarMensaje("Recurso eliminado correctamente.");
+            JOptionPane.showMessageDialog(this, "Recurso eliminado correctamente.");
         } catch (RuntimeException ex) {
-            mostrarError(ex.getMessage());
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private void mostrarEnFormulario(Recurso recurso) {
-        txtId.setText(recurso.getId());
-        txtDescripcion.setText(recurso.getDescripcion());
-        seleccionarCategoria(recurso.getCategoria() != null ? recurso.getCategoria().getId() : "");
     }
 
     private void limpiarCampos() {
         txtId.setText("");
         txtDescripcion.setText("");
-        cmbCategoria.setSelectedIndex(-1);
+        if (cmbCategoria.getItemCount() > 0) cmbCategoria.setSelectedIndex(0);
         tabla.clearSelection();
-    }
-
-    private void mostrarMensaje(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje);
-    }
-
-    private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

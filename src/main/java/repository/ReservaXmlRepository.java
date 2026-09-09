@@ -4,7 +4,7 @@ import model.DetalleReserva;
 import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -1,7 +1,5 @@
 package model;
 
-import model.categorias.CategoriaRecurso;
-
 public class Recurso {
     private String id;
     private CategoriaRecurso categoria;

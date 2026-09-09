@@ -1,9 +1,9 @@
 import javax.swing.*;
-import controller.login.LoginController;
-import controller.login.LoginView;
-import service.login.AuthService;
-import service.login.UsuarioRepository;
-import service.login.UsuarioXmlRepository;
+import controller.LoginController;
+import view.LoginView;
+import service.AuthService;
+import repository.UsuarioRepository;
+import repository.UsuarioXmlRepository;
 
 public class Main {
     public static void main(String[] args) {

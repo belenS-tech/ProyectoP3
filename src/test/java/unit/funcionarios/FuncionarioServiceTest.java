@@ -1,11 +1,11 @@
 package unit.funcionarios;
 
-import model.funcionarios.Funcionario;
-import model.login.Rol;
-import model.login.Usuario;
+import model.Funcionario;
+import model.Rol;
+import model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.funcionarios.FuncionarioService;
+import service.FuncionarioService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

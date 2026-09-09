@@ -1,7 +1,7 @@
 package unit.login;
 
-import model.login.Usuario;
-import service.login.UsuarioRepository;
+import model.Usuario;
+import repository.UsuarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;
