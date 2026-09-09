@@ -20,6 +20,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -55,10 +56,6 @@ public class ReservaController extends JPanel {
     private JButton btnExtraerIA;
     private JList<CategoriaRecurso> listaCategorias;
     private DefaultListModel<CategoriaRecurso> modeloListaCategorias;
-
-    public ReservaController() {
-        this(new CategoriaService(new CategoriaXmlRepository()));
-    }
 
     public ReservaController(CategoriaService categoriaService) {
         this.categoriaService = categoriaService;
@@ -185,6 +182,49 @@ public class ReservaController extends JPanel {
         btnModificar = new JButton("Modificar");
         btnEliminar = new JButton("Eliminar");
         btnLimpiar = new JButton("Limpiar");
+
+        URL urlBorrar = getClass().getResource("/icons/eliminar.png");
+        if (urlBorrar != null) {
+            ImageIcon original = new ImageIcon(urlBorrar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnEliminar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlLimpiar = getClass().getResource("/icons/limpiar.png");
+        if (urlLimpiar != null) {
+            ImageIcon original = new ImageIcon(urlLimpiar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnLimpiar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlAgregar = getClass().getResource("/icons/agregar.png");
+        if (urlAgregar != null) {
+            ImageIcon original = new ImageIcon(urlAgregar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnAgregar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlConsultar = getClass().getResource("/icons/consultar.png");
+        if (urlConsultar != null) {
+            ImageIcon original = new ImageIcon(urlConsultar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnConsultar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlModificar = getClass().getResource("/icons/modificar.png");
+        if (urlModificar != null) {
+            ImageIcon original = new ImageIcon(urlModificar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnModificar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlExtraerIA = getClass().getResource("/icons/ia.png");
+        if (urlExtraerIA != null) {
+            ImageIcon original = new ImageIcon(urlExtraerIA);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnExtraerIA.setIcon(new ImageIcon(img));
+        }
+
         botones.add(btnAgregar);
         botones.add(btnConsultar);
         botones.add(btnModificar);

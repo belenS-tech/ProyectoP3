@@ -9,6 +9,10 @@ import java.util.List;
 public class RecursoService {
     private final RecursoRepository repository;
 
+    public RecursoService() {
+        this.repository = null;
+    }
+
     public RecursoService(RecursoRepository repository) {
         this.repository = repository;
     }

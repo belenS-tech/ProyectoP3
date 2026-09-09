@@ -15,6 +15,11 @@ public class ReservaService {
     private final DisponibilidadService disponibilidadService;
     private final ReservaRepository reservaRepository;
 
+    public ReservaService(){
+        this.reservaRepository = null;
+        this.disponibilidadService = null;
+    }
+
     public ReservaService(DisponibilidadService disponibilidadService, ReservaRepository reservaRepository) {
         this.disponibilidadService = disponibilidadService;
         this.reservaRepository = reservaRepository;
@@ -52,7 +57,6 @@ public class ReservaService {
                 }
             }
         }
-
         reservaRepository.guardar(reserva);
     }
 
@@ -65,12 +69,8 @@ public class ReservaService {
     }
 
     public void eliminar(Reserva reserva) {
-        if (reserva == null) {
-            throw new IllegalArgumentException("La reserva no puede ser nula");
-        }
-        if (reserva.getId() == null || reserva.getId().isBlank()) {
-            throw new IllegalArgumentException("El ID de la reserva no puede ser nulo o vacío");
-        }
+        validarReservaBase(reserva);
+
         if (reservaRepository.buscarPorId(reserva.getId().trim()) == null) {
             throw new IllegalArgumentException("No existe una reserva con ese ID.");
         }

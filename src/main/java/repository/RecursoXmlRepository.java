@@ -163,6 +163,10 @@ public class RecursoXmlRepository implements RecursoRepository {
     @Override
     public List<Recurso> buscarPorCategoria(String categoriaId) {
         return listar().stream()
+                .filter(recurso -> recurso.getCategoria() != null
+                        && categoriaId != null
+                        && categoriaId.equals(recurso.getCategoria().getId()))
+                .toList();
                 .filter(r -> r.getCategoria() != null && categoriaId.equals(r.getCategoria().getId()))
                 .collect(java.util.stream.Collectors.toList());
     }

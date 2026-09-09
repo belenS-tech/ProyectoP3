@@ -18,6 +18,10 @@ public class DisponibilidadService {
 
     private final RecursoRepository recursoRepository;
     private final ReservaRepository reservaRepository;
+    public DisponibilidadService(){
+        this.reservaRepository = null;
+        this.recursoRepository = null;
+    }
 
     public DisponibilidadService(RecursoRepository recursoRepository, ReservaRepository reservaRepository) {
         this.recursoRepository = recursoRepository;
@@ -41,6 +45,9 @@ public class DisponibilidadService {
     }
 
     public Recurso buscarRecursoDisponible(CategoriaRecurso categoria, LocalDate fecha, LocalTime inicio, LocalTime fin){
+        if(categoria == null || fecha == null || inicio == null || fin == null){
+            throw new IllegalArgumentException("Los parámetros no pueden ser nulos");
+        }
         List<Recurso> recursos = recursoRepository.listar();
         recursos.removeIf(recurso -> !Objects.equals(recurso.getCategoria(), categoria));
 
