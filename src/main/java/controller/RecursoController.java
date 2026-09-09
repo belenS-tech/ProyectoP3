@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.net.URL;
 import java.util.List;
 
 public class RecursoController extends JPanel {
@@ -114,6 +115,42 @@ public class RecursoController extends JPanel {
         btnModificar = new JButton("Modificar");
         btnEliminar = new JButton("Borrar");
         btnLimpiar = new JButton("Limpiar");
+
+        URL urlBorrar = getClass().getResource("/icons/eliminar.png");
+        if (urlBorrar != null) {
+            ImageIcon original = new ImageIcon(urlBorrar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnEliminar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlLimpiar = getClass().getResource("/icons/limpiar.png");
+        if (urlLimpiar != null) {
+            ImageIcon original = new ImageIcon(urlLimpiar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnLimpiar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlAgregar = getClass().getResource("/icons/agregar.png");
+        if (urlAgregar != null) {
+            ImageIcon original = new ImageIcon(urlAgregar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnAgregar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlConsultar = getClass().getResource("/icons/consultar.png");
+        if (urlConsultar != null) {
+            ImageIcon original = new ImageIcon(urlConsultar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnConsultar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlModificar = getClass().getResource("/icons/modificar.png");
+        if (urlModificar != null) {
+            ImageIcon original = new ImageIcon(urlModificar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnModificar.setIcon(new ImageIcon(img));
+        }
+
         botones.add(btnAgregar);
         botones.add(btnModificar);
         botones.add(btnEliminar);

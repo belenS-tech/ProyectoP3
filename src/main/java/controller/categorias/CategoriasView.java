@@ -5,6 +5,7 @@ import model.categorias.CategoriaRecurso;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.net.URL;
 import java.util.List;
 
 public class CategoriasView extends JPanel {
@@ -48,9 +49,21 @@ public class CategoriasView extends JPanel {
         panel.add(campoBuscarDescripcion);
 
         botonBuscar = new JButton("Buscar");
+        URL urlBuscar = getClass().getResource("/icons/buscar.png");
+        if (urlBuscar != null) {
+            ImageIcon original = new ImageIcon(urlBuscar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            botonBuscar.setIcon(new ImageIcon(img));
+        }
         panel.add(botonBuscar);
 
         botonImprimir = new JButton("Imprimir");
+        URL urlImprimir = getClass().getResource("/icons/imprimir.png");
+        if (urlImprimir != null) {
+            ImageIcon original = new ImageIcon(urlImprimir);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            botonImprimir.setIcon(new ImageIcon(img));
+        }
         panel.add(botonImprimir);
 
         return panel;
@@ -81,6 +94,28 @@ public class CategoriasView extends JPanel {
         botonGuardar = new JButton("Guardar");
         botonBorrar = new JButton("Borrar");
         botonLimpiar = new JButton("Limpiar");
+
+        URL urlGuardar = getClass().getResource("/icons/guardar.png");
+        if (urlGuardar != null) {
+            ImageIcon original = new ImageIcon(urlGuardar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            botonGuardar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlBorrar = getClass().getResource("/icons/eliminar.png");
+        if (urlBorrar != null) {
+            ImageIcon original = new ImageIcon(urlBorrar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            botonBorrar.setIcon(new ImageIcon(img));
+        }
+
+        URL urlLimpiar = getClass().getResource("/icons/limpiar.png");
+        if (urlLimpiar != null) {
+            ImageIcon original = new ImageIcon(urlLimpiar);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            botonLimpiar.setIcon(new ImageIcon(img));
+        }
+
         panelBotones.add(botonGuardar);
         panelBotones.add(botonBorrar);
         panelBotones.add(botonLimpiar);

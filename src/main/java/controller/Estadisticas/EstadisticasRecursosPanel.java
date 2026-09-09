@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,21 @@ public class EstadisticasRecursosPanel extends JPanel {
         btnCalcular = new JButton("Calcular");
         btnImprimir = new JButton("Imprimir");
         btnImprimir.setEnabled(false);
+
+        URL urlImprimir = getClass().getResource("/icons/imprimir.png");
+        if (urlImprimir != null) {
+            ImageIcon original = new ImageIcon(urlImprimir);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnImprimir.setIcon(new ImageIcon(img));
+        }
+
+        URL urlCalcular = getClass().getResource("/icons/cargar.png");
+        if (urlCalcular != null) {
+            ImageIcon original = new ImageIcon(urlCalcular);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnCalcular.setIcon(new ImageIcon(img));
+        }
+
         panelBotones.add(btnCalcular);
         panelBotones.add(btnImprimir);
         panelSuperior.add(panelBotones, BorderLayout.CENTER);
@@ -149,7 +165,7 @@ public class EstadisticasRecursosPanel extends JPanel {
             );
 
             byte[] imagenGrafico = capturarGraficoComoPng();
-            String ruta = elegirRutaGuardado("estadisticas_recursos.pdf");
+            String ruta = elegirRutaGuardado();
             if (ruta == null) {
                 return;
             }
@@ -174,10 +190,10 @@ public class EstadisticasRecursosPanel extends JPanel {
         return buffer.toByteArray();
     }
     /** Abre un diálogo "Guardar como" y devuelve la ruta elegida, o null si el usuario cancela. */
-    private String elegirRutaGuardado(String nombreSugerido) {
+    private String elegirRutaGuardado() {
         JFileChooser selector = new JFileChooser();
         selector.setDialogTitle("Guardar reporte PDF");
-        selector.setSelectedFile(new java.io.File(nombreSugerido));
+        selector.setSelectedFile(new java.io.File("estadisticas_recursos.pdf"));
         selector.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos PDF (*.pdf)", "pdf"));
 
         int resultado = selector.showSaveDialog(this);
