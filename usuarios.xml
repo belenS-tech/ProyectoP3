@@ -15,4 +15,9 @@
         <id>123</id>
         <rol>FUNCIONARIO</rol>
     </usuario>
+    <usuario>
+        <clave>222</clave>
+        <id>222</id>
+        <rol>FUNCIONARIO</rol>
+    </usuario>
 </usuarios>

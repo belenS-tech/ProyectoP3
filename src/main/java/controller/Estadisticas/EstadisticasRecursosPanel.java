@@ -89,6 +89,9 @@ public class EstadisticasRecursosPanel extends JPanel {
         grafico = ChartFactory.createBarChart(
                 "Reservas por recurso", "Recurso", "Cantidad",
                 dataset, PlotOrientation.VERTICAL, false, true, false);
+        org.jfree.chart.plot.CategoryPlot plot = grafico.getCategoryPlot();
+        ((org.jfree.chart.renderer.category.BarRenderer) plot.getRenderer())
+                .setSeriesPaint(0, new Color(109, 40, 217));
         panelGrafico = new ChartPanel(grafico);
         panelGrafico.setPreferredSize(new Dimension(500, 320));
 
@@ -102,6 +105,7 @@ public class EstadisticasRecursosPanel extends JPanel {
 
         btnCalcular.addActionListener(e -> onCalcular());
         btnImprimir.addActionListener(e -> onImprimir());
+        util.Tema.aplicar(this);
     }
 
     public void configurarDependencias(ReservaRepository reservaRepo) {

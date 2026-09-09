@@ -46,6 +46,14 @@
             <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
+        <!-- Juan: de acá para abajo es mío -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Juan: hasta acá -->
     </dependencies>
     <!-- agregado por Juan: plugins de pruebas -->
     <build>

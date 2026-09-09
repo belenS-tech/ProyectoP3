@@ -23,7 +23,9 @@ import java.awt.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ReservaController extends JPanel {
@@ -36,7 +38,7 @@ public class ReservaController extends JPanel {
 
     private JTextField txtId;
     private JTextField txtActividad;
-    private JTextField txtFecha;
+    private JSpinner spnFecha;
     private JTextField txtHoraInicio;
     private JTextField txtHoraFin;
     private JTextField txtFuncionarioId;
@@ -66,6 +68,13 @@ public class ReservaController extends JPanel {
         cargarCategorias();
         cargarTabla();
         registrarEventos();
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                cargarCategorias();
+            }
+        });
     }
 
     private void construirPantalla() {
@@ -82,6 +91,7 @@ public class ReservaController extends JPanel {
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirTabla(), BorderLayout.CENTER);
+        util.Tema.aplicar(this);
     }
 
     /** Zona de "llenar con IA": frase en lenguaje natural + extracción automática. */
@@ -126,10 +136,11 @@ public class ReservaController extends JPanel {
         panel.add(txtActividad, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2;
-        panel.add(new JLabel("Fecha (yyyy-MM-dd):"), gbc);
-        txtFecha = new JTextField(20);
+        panel.add(new JLabel("Fecha:"), gbc);
+        spnFecha = new JSpinner(new SpinnerDateModel());
+        spnFecha.setEditor(new JSpinner.DateEditor(spnFecha, "dd/MM/yyyy"));
         gbc.gridx = 1; gbc.gridy = 2;
-        panel.add(txtFecha, gbc);
+        panel.add(spnFecha, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3;
         panel.add(new JLabel("Hora inicio (HH:mm):"), gbc);
@@ -243,7 +254,7 @@ public class ReservaController extends JPanel {
 
     private void cargarCategorias() {
         modeloListaCategorias.clear();
-        for (CategoriaRecurso categoria : categoriaService.listarTodos()) {
+        for (CategoriaRecurso categoria : new CategoriaService(new CategoriaXmlRepository()).listarTodos()) {
             modeloListaCategorias.addElement(categoria);
         }
     }
@@ -261,21 +272,33 @@ public class ReservaController extends JPanel {
     /** Envía la frase escrita a la IA y llena el formulario con lo que interpretó. */
     private void extraerConIA() {
         String frase = txtFrase.getText();
-        try {
-            AiReservationResponse resultado = aiReservationService.interpretarSolicitud(frase);
+        btnExtraerIA.setEnabled(false);
+        btnExtraerIA.setText("Procesando...");
 
-            txtActividad.setText(resultado.getActividad());
-            txtFecha.setText(resultado.getFecha().toString());
-            txtHoraInicio.setText(resultado.getHoraInicio().toString());
-            txtHoraFin.setText(resultado.getHoraFin().toString());
+        new SwingWorker<AiReservationResponse, Void>() {
+            @Override
+            protected AiReservationResponse doInBackground() throws Exception {
+                return aiReservationService.interpretarSolicitud(frase);
+            }
 
-            seleccionarCategoriasSugeridas(resultado.getCategorias());
-
-            mostrarMensaje("Datos extraídos. Revíselos y presione \"Reservar\" para confirmar.");
-
-        } catch (AiReservationException ex) {
-            mostrarError("No fue posible interpretar la solicitud: " + ex.getMessage());
-        }
+            @Override
+            protected void done() {
+                btnExtraerIA.setEnabled(true);
+                btnExtraerIA.setText("Extraer con IA");
+                try {
+                    AiReservationResponse resultado = get();
+                    txtActividad.setText(resultado.getActividad());
+                    spnFecha.setValue(Date.from(resultado.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    txtHoraInicio.setText(resultado.getHoraInicio().toString());
+                    txtHoraFin.setText(resultado.getHoraFin().toString());
+                    seleccionarCategoriasSugeridas(resultado.getCategorias());
+                    mostrarMensaje("Datos extraídos. Revíselos y presione \"Reservar\" para confirmar.");
+                } catch (Exception ex) {
+                    Throwable causa = ex.getCause() != null ? ex.getCause() : ex;
+                    mostrarError("No fue posible interpretar la solicitud: " + causa.getMessage());
+                }
+            }
+        }.execute();
     }
 
     /** Marca en la lista las categorías cuyo texto coincide con lo que devolvió la IA. */
@@ -324,7 +347,8 @@ public class ReservaController extends JPanel {
         }
         txtId.setText(String.valueOf(modeloTabla.getValueAt(fila, 0)));
         txtActividad.setText(String.valueOf(modeloTabla.getValueAt(fila, 1)));
-        txtFecha.setText(String.valueOf(modeloTabla.getValueAt(fila, 2)));
+        LocalDate fechaFila = (LocalDate) modeloTabla.getValueAt(fila, 2);
+        spnFecha.setValue(Date.from(fechaFila.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         txtHoraInicio.setText(String.valueOf(modeloTabla.getValueAt(fila, 3)));
         txtHoraFin.setText(String.valueOf(modeloTabla.getValueAt(fila, 4)));
         txtFuncionarioId.setText(String.valueOf(modeloTabla.getValueAt(fila, 5)));
@@ -332,10 +356,12 @@ public class ReservaController extends JPanel {
     }
 
     private Reserva construirReservaBase() {
+        LocalDate fecha = ((Date) spnFecha.getValue()).toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
         return new Reserva(
                 txtId.getText(),
                 txtActividad.getText(),
-                LocalDate.parse(txtFecha.getText()),
+                fecha,
                 LocalTime.parse(txtHoraInicio.getText()),
                 LocalTime.parse(txtHoraFin.getText()),
                 txtFuncionarioId.getText(),
@@ -426,7 +452,7 @@ public class ReservaController extends JPanel {
     private void mostrarEnFormulario(Reserva reserva) {
         txtId.setText(reserva.getId());
         txtActividad.setText(reserva.getActividad());
-        txtFecha.setText(reserva.getFecha().toString());
+        spnFecha.setValue(Date.from(reserva.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         txtHoraInicio.setText(reserva.getHoraInicio().toString());
         txtHoraFin.setText(reserva.getHoraFin().toString());
         txtFuncionarioId.setText(reserva.getFuncionarioId());
@@ -436,7 +462,7 @@ public class ReservaController extends JPanel {
     private void limpiarCampos() {
         txtId.setText("");
         txtActividad.setText("");
-        txtFecha.setText("");
+        spnFecha.setValue(new Date());
         txtHoraInicio.setText("");
         txtHoraFin.setText("");
         txtFuncionarioId.setText("");
