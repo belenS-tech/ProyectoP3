@@ -6,7 +6,7 @@ import repository.CategoriaRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriaRepositoryEnMemoria implements CategoriaRepository.CategoriaRepository {
+public class CategoriaRepositoryEnMemoria implements CategoriaRepository {
 
     private final List<CategoriaRecurso> categorias = new ArrayList<>();
 
@@ -33,4 +33,10 @@ public class CategoriaRepositoryEnMemoria implements CategoriaRepository.Categor
     public void eliminar(String id) {
         categorias.removeIf(c -> c.getId().equals(id));
     }
+
+    @Override
+    public List<CategoriaRecurso> listarTodas() {
+        return categorias;
+    }
+
 }
