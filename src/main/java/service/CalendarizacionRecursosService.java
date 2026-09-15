@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Construye la matriz de calendarización: filas = horas del día,
- * columnas = recursos de la categoría seleccionada, celdas =
- * disponibilidad o actividad+funcionario si está ocupado.
+ * Construye la matriz de calendarización
 */
 public class CalendarizacionRecursosService {
 
