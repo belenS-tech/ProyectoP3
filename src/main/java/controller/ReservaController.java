@@ -14,6 +14,7 @@ import service.DisponibilidadService;
 import service.ReservaService;
 import service.CategoriaService;
 import repository.CategoriaXmlRepository;
+import view.Tema;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -90,7 +91,7 @@ public class ReservaController extends JPanel {
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirTabla(), BorderLayout.CENTER);
-        util.Tema.aplicar(this);
+        Tema.aplicar(this);
     }
 
     /** Zona de "llenar con IA": frase en lenguaje natural + extracción automática. */
@@ -256,7 +257,7 @@ public class ReservaController extends JPanel {
         for (CategoriaRecurso categoria : new CategoriaService(new CategoriaXmlRepository()).listarTodos()) {
             JCheckBox chk = new JCheckBox(categoria.getDescripcion());
             chk.putClientProperty("categoria", categoria);
-            chk.setBackground(util.Tema.FONDO);
+            chk.setBackground(Tema.FONDO);
             checksCategorias.add(chk);
             panelChecksCategorias.add(chk);
         }

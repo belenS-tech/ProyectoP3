@@ -9,7 +9,7 @@ import repository.RecursoXmlRepository;
 import service.RecursoService;
 import service.CategoriaService;
 import service.SessionManager;
-import util.Tema;
+import view.Tema;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

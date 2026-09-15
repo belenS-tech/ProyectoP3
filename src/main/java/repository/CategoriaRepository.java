@@ -4,7 +4,6 @@ import model.CategoriaRecurso;
 import java.util.List;
 
 
-
 public interface CategoriaRepository {
     List<CategoriaRecurso> listarTodas();
 
