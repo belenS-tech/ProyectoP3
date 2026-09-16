@@ -1,12 +1,12 @@
 package unit.login;
 
-import model.login.Rol;
-import model.login.Usuario;
+import model.Rol;
+import model.Usuario;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.login.AuthService;
-import service.login.SessionManager;
+import service.AuthService;
+import service.SessionManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 

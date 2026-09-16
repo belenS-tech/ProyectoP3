@@ -5,6 +5,7 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import exception.AiReservationException;
+import model.CategoriaRecurso;
 
 import java.time.LocalDate;
 
@@ -68,6 +69,14 @@ public class AiReservationService {
 
         LocalDate hoy = LocalDate.now();
 
+        // Cargar las categorías reales del sistema
+        java.util.List<CategoriaRecurso> cats =
+                new repository.CategoriaXmlRepository().listarTodos();
+        StringBuilder listaCats = new StringBuilder();
+        for (CategoriaRecurso c : cats) {
+            listaCats.append("- ").append(c.getDescripcion()).append("\n");
+        }
+
         return String.format("""
             Eres un asistente para un sistema de reservas.
 
@@ -81,11 +90,8 @@ public class AiReservationService {
             - horaFin
             - categorias
 
-            Las categorías permitidas son:
-            SALA
-            PROYECTOR
-            COMPUTADORA
-            PIZARRA
+            Las categorías disponibles en el sistema son (usa exactamente estos nombres):
+            %s
 
             Devuelve únicamente un JSON con este formato:
 
@@ -94,7 +100,7 @@ public class AiReservationService {
               "fecha": "YYYY-MM-DD",
               "horaInicio": "HH:mm",
               "horaFin": "HH:mm",
-              "categorias": ["CATEGORIA"]
+              "categorias": ["Nombre exacto de la categoría"]
             }
 
             Para expresiones como "mañana", "pasado mañana",
@@ -104,7 +110,7 @@ public class AiReservationService {
             No agregues explicaciones ni texto fuera del JSON.
 
             Solicitud del usuario: %s
-            """, hoy, solicitud);
+            """, hoy, listaCats.toString(), solicitud);
     }
 
 
@@ -123,7 +129,7 @@ public class AiReservationService {
                     raw.horaFin != null ? java.time.LocalTime.parse(raw.horaFin) : null,
                     raw.categorias != null
                             ? raw.categorias.stream()
-                                .map(model.categorias.CategoriaRecurso::valueOf)
+                                .map(CategoriaRecurso::valueOf)
                                 .collect(java.util.stream.Collectors.toList())
                             : null
             );

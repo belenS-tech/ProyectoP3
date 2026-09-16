@@ -1,7 +1,7 @@
 package repository;
 
 import model.Recurso;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -74,11 +74,13 @@ public class RecursoXmlRepository implements RecursoRepository {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element elementoRecurso = (Element) nodeList.item(i);
                 String id = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
+                String categoriaId = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
                 String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
-                Recurso recurso = new Recurso(id, CategoriaRecurso.valueOf(categoria), descripcion);
+                CategoriaRecurso cat = new CategoriaXmlRepository().buscarPorId(categoriaId);
+                if (cat == null) cat = new CategoriaRecurso(categoriaId, categoriaId);
+                Recurso recurso = new Recurso(id, cat, descripcion);
                 recursos.add(recurso);
-                System.out.println("Recurso ID: " + id + ", Categoria: " + categoria + ", Descripcion: " + descripcion);
+                System.out.println("Recurso ID: " + id + ", Categoria: " + categoriaId + ", Descripcion: " + descripcion);
             }
             return recursos;
 
@@ -167,6 +169,10 @@ public class RecursoXmlRepository implements RecursoRepository {
                         && categoriaId.equals(recurso.getCategoria().getId()))
                 .toList();
     }
+
+
+
+
 
     @Override
     public List<Recurso> listarTodos() {

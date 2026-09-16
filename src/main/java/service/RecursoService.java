@@ -1,7 +1,7 @@
 package service;
 
 import model.Recurso;
-import model.categorias.CategoriaRecurso;
+import model.CategoriaRecurso;
 import repository.RecursoRepository;
 
 import java.util.List;

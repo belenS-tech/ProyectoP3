@@ -1,7 +1,7 @@
 package unit.categorias;
 
-import model.categorias.CategoriaRecurso;
-import service.categorias.CategoriaRepository;
+import model.CategoriaRecurso;
+import repository.CategoriaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,4 +33,10 @@ public class CategoriaRepositoryEnMemoria implements CategoriaRepository {
     public void eliminar(String id) {
         categorias.removeIf(c -> c.getId().equals(id));
     }
+
+    @Override
+    public List<CategoriaRecurso> listarTodas() {
+        return categorias;
+    }
+
 }

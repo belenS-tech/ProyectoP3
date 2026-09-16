@@ -1,7 +1,5 @@
 package model;
 
-import model.categorias.CategoriaRecurso;
-
 public class DetalleReserva {
 
     private CategoriaRecurso categoria;
