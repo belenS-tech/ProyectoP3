@@ -115,6 +115,12 @@ public class CalendarizacionRecursosPanel extends JPanel {
         this.service = new CalendarizacionRecursosService(recursoRepo, reservaRepo);
         this.categoriaService = categoriaService;
         cargarCategorias();
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                cargarCategorias();
+            }
+        });
     }
 
     private void cargarCategorias() {

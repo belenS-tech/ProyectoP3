@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import repository.CategoriaXmlRepository;
 import static java.util.Locale.filter;
 
 public class RecursoXmlRepository implements RecursoRepository {
@@ -76,11 +77,13 @@ public class RecursoXmlRepository implements RecursoRepository {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element elementoRecurso = (Element) nodeList.item(i);
                 String id = elementoRecurso.getElementsByTagName("id").item(0).getTextContent();
-                String categoria = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
+                String categoriaId = elementoRecurso.getElementsByTagName("categoria").item(0).getTextContent();
                 String descripcion = elementoRecurso.getElementsByTagName("descripcion").item(0).getTextContent();
-                Recurso recurso = new Recurso(id, CategoriaRecurso.valueOf(categoria), descripcion);
+                CategoriaRecurso cat = new CategoriaXmlRepository().buscarPorId(categoriaId);
+                if (cat == null) cat = new CategoriaRecurso(categoriaId, categoriaId);
+                Recurso recurso = new Recurso(id, cat, descripcion);
                 recursos.add(recurso);
-                System.out.println("Recurso ID: " + id + ", Categoria: " + categoria + ", Descripcion: " + descripcion);
+                System.out.println("Recurso ID: " + id + ", Categoria: " + categoriaId + ", Descripcion: " + descripcion);
             }
             return recursos;
 
