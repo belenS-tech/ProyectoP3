@@ -1,6 +1,8 @@
 package controller;
 
 import repository.CategoriaRepository;
+import repository.RecursoXmlRepository;
+import repository.ReservaXmlRepository;
 import view.MainView;
 import model.Usuario;
 import service.CategoriaService;
@@ -71,7 +73,8 @@ public class LoginController {
                 new FuncionarioService(funcionarioRepository, usuarioRepository);
 
         CategoriaRepository categoriaRepository = new CategoriaXmlRepository();
-        CategoriaService categoriaService = new CategoriaService(categoriaRepository);
+        CategoriaService categoriaService = new CategoriaService(
+                categoriaRepository, new RecursoXmlRepository(), new ReservaXmlRepository());
 
         MainView mainView = new MainView(usuario, funcionarioService, categoriaService);
         new MainController(mainView, authService, usuarioRepository);
