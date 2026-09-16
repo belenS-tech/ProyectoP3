@@ -17,9 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import repository.CategoriaXmlRepository;
-import static java.util.Locale.filter;
-
 public class RecursoXmlRepository implements RecursoRepository {
 
     private final String archivo = "src/main/resources/data/recursos.xml";
