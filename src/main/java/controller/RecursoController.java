@@ -49,6 +49,12 @@ public class RecursoController extends JPanel {
         cargarTabla(recursoService.listarTodos());
         registrarEventos();
         Tema.aplicar(this);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                cargarCategorias();
+            }
+        });
     }
 
     private void construirPantalla() {
