@@ -38,6 +38,6 @@ public class EstadisticasPanel extends JPanel {
 
         tabbedPane.addTab("Estadísticas de Recursos", panelEstadisticasRecursos);
         tabbedPane.addTab("Estadísticas de Actividades", panelActividades);
-        util.Tema.aplicar(this);
+        Tema.aplicar(this);
     }
 }

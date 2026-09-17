@@ -37,7 +37,7 @@ public class CategoriasView extends JPanel {
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirPanelListado(), BorderLayout.CENTER);
-        util.Tema.aplicar(this);
+        Tema.aplicar(this);
     }
 
     private JPanel construirPanelBusqueda() {
@@ -78,9 +78,11 @@ public class CategoriasView extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("ID:"), gbc);
+        panel.add(new JLabel("ID (automático):"), gbc);
         campoId = new JTextField(22);
-        campoId.setEditable(false); // el ID es autogenerado
+        campoId.setEditable(false);
+        campoId.setToolTipText("El ID se genera automáticamente al guardar");
+        campoId.setText("(se asigna al guardar)");
         gbc.gridx = 1; gbc.gridy = 0;
         panel.add(campoId, gbc);
 
@@ -164,14 +166,15 @@ public class CategoriasView extends JPanel {
     }
 
     public void limpiarFormulario() {
-        campoId.setText("");
+        campoId.setText("(se asigna al guardar)");
         campoDescripcion.setText("");
         tabla.clearSelection();
         campoDescripcion.requestFocus();
     }
 
     public String getId() {
-        return campoId.getText();
+        String texto = campoId.getText();
+        return texto.equals("(se asigna al guardar)") ? "" : texto;
     }
 
     public String getDescripcion() {

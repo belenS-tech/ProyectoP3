@@ -39,7 +39,7 @@ public class FuncionariosView extends JPanel {
 
         add(panelSuperior, BorderLayout.NORTH);
         add(construirPanelListado(), BorderLayout.CENTER);
-        util.Tema.aplicar(this);
+        Tema.aplicar(this);
     }
 
     private JPanel construirPanelBusqueda() {

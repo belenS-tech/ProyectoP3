@@ -13,11 +13,19 @@ public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
     private final UsuarioRepository usuarioRepository;
+    private final repository.ReservaRepository reservaRepository;
 
     public FuncionarioService(FuncionarioRepository funcionarioRepository,
                               UsuarioRepository usuarioRepository) {
+        this(funcionarioRepository, usuarioRepository, new repository.ReservaXmlRepository());
+    }
+
+    public FuncionarioService(FuncionarioRepository funcionarioRepository,
+                              UsuarioRepository usuarioRepository,
+                              repository.ReservaRepository reservaRepository) {
         this.funcionarioRepository = funcionarioRepository;
         this.usuarioRepository = usuarioRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     public List<Funcionario> listarTodos() {
@@ -73,7 +81,7 @@ public class FuncionarioService {
         funcionarioRepository.guardar(funcionario);
     }
 
-    /** Elimina el funcionario y su usuario asociado. */
+    /** Elimina el funcionario, su usuario y todas sus reservas. */
     public void eliminar(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("Debe seleccionar un funcionario.");
@@ -83,6 +91,11 @@ public class FuncionarioService {
         if (funcionario == null) {
             throw new IllegalArgumentException("No existe un funcionario con ese ID.");
         }
+
+        // Eliminar reservas del funcionario
+        reservaRepository.listar().stream()
+                .filter(r -> id.trim().equals(r.getFuncionarioId()))
+                .forEach(reservaRepository::eliminar);
 
         funcionarioRepository.eliminar(id.trim());
         usuarioRepository.eliminar(id.trim());

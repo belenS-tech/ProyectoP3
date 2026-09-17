@@ -97,7 +97,7 @@ public class ProgramacionActividadesPanel extends JPanel {
 
         btnCargar.addActionListener(e -> onCargar());
         btnImprimir.addActionListener(e -> onImprimir());
-        util.Tema.aplicar(this);
+        Tema.aplicar(this);
     }
 
     public void configurarDependencias(ReservaRepository reservaRepo) {
