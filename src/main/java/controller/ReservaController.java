@@ -5,20 +5,20 @@ import model.EstadoReserva;
 import model.Recurso;
 import model.Reserva;
 import model.CategoriaRecurso;
+import report.PdfReportService;
+import report.ReportHeader;
+import report.ReportTable;
 import repository.RecursoRepository;
 import repository.RecursoXmlRepository;
 import repository.ReservaXmlRepository;
-import service.AiReservationResponse;
-import service.AiReservationService;
-import service.DisponibilidadService;
-import service.ReservaService;
-import service.CategoriaService;
+import service.*;
 import repository.CategoriaXmlRepository;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -47,8 +47,10 @@ public class ReservaController extends JPanel {
     private JButton btnModificar;
     private JButton btnEliminar;
     private JButton btnLimpiar;
+    private JButton btnReporte;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
+    private PdfReportService pdfReportService = new PdfReportService();
 
     // --- Sección de Inteligencia Artificial ---
     private JTextArea txtFrase;
@@ -180,6 +182,7 @@ public class ReservaController extends JPanel {
         btnModificar = new JButton("Modificar");
         btnEliminar = new JButton("Eliminar");
         btnLimpiar = new JButton("Limpiar");
+        btnReporte = new JButton("Generar Reporte PDF");
 
         URL urlBorrar = getClass().getResource("/icons/eliminar.png");
         if (urlBorrar != null) {
@@ -223,11 +226,19 @@ public class ReservaController extends JPanel {
             btnExtraerIA.setIcon(new ImageIcon(img));
         }
 
+        URL urlReporte = getClass().getResource("/icons/imprimir.png");
+        if (urlReporte != null) {
+            ImageIcon original = new ImageIcon(urlReporte);
+            Image img = original.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            btnReporte.setIcon(new ImageIcon(img));
+        }
+
         botones.add(btnAgregar);
         botones.add(btnConsultar);
         botones.add(btnModificar);
         botones.add(btnEliminar);
         botones.add(btnLimpiar);
+        botones.add(btnReporte);
 
         gbc.gridx = 0; gbc.gridy = 8;
         gbc.gridwidth = 2;
@@ -271,7 +282,65 @@ public class ReservaController extends JPanel {
         btnEliminar.addActionListener(e -> eliminarReserva());
         btnLimpiar.addActionListener(e -> limpiarCampos());
         btnExtraerIA.addActionListener(e -> extraerConIA());
+        btnReporte.addActionListener(e -> generarReportePDF());
         tabla.getSelectionModel().addListSelectionListener(this::alSeleccionarFila);
+    }
+
+    private void generarReportePDF() {
+        try {
+            List<Reserva> reservas = reservaService.listarTodos();
+
+            if (reservas.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "No hay reservas para reportar.",
+                        "Información",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            ReportTable tabla = new ReportTable();
+            tabla.agregarEncabezado(new String[]{"ID", "Actividad", "Fecha", "Inicio", "Fin", "Funcionario", "Estado"});
+
+            for (Reserva reserva : reservas) {
+                tabla.agregarFila(new String[]{
+                        reserva.getId(),
+                        reserva.getActividad(),
+                        reserva.getFecha().toString(),
+                        reserva.getHoraInicio().toString(),
+                        reserva.getHoraFin().toString(),
+                        reserva.getFuncionarioId(),
+                        reserva.getEstado().toString()
+                });
+            }
+
+            ReportHeader header = new ReportHeader(
+                    "Sistema de Reserva de Recursos",
+                    "Reporte de Reservas",
+                    SessionManager.getInstancia().getUsuarioActual().getId()
+            );
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setSelectedFile(new File("reporte_reservas.pdf"));
+
+            int result = fileChooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                String rutaArchivo = fileChooser.getSelectedFile().getAbsolutePath();
+                pdfReportService.generarReporteTabla(rutaArchivo, header, tabla);
+
+                JOptionPane.showMessageDialog(this,
+                        "Reporte generado exitosamente en:\n" + rutaArchivo,
+                        "Éxito",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al generar reporte: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     /** Envía la frase escrita a la IA y llena el formulario con lo que interpretó. */
