@@ -35,6 +35,7 @@ public class ReservaController extends JPanel {
     private JButton btnReservar;
     private JButton btnCancelar;
     private JButton btnLimpiar;
+    private JButton btnImprimir;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
 
@@ -181,7 +182,7 @@ public class ReservaController extends JPanel {
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createTitledBorder("Mis reservas"));
 
-        JButton btnImprimir = new JButton("Imprimir");
+        btnImprimir = new JButton("Imprimir");
         setIcono(btnImprimir, "/icons/imprimir.png");
 
         JPanel panelDerecha = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -225,6 +226,7 @@ public class ReservaController extends JPanel {
             if (usuarioActual != null && !reserva.getFuncionarioId().equals(usuarioActual)) continue;
             String horario = reserva.getHoraInicio() + " - " + reserva.getHoraFin();
             String recursos = reserva.getDetalles().stream()
+                    .filter(d -> d.getRecurso() != null)
                     .map(d -> d.getRecurso().getId())
                     .reduce((a, b) -> a + ", " + b).orElse("");
             modeloTabla.addRow(new Object[]{
@@ -239,6 +241,7 @@ public class ReservaController extends JPanel {
         btnCancelar.addActionListener(e -> cancelarReserva());
         btnLimpiar.addActionListener(e -> limpiarCampos());
         btnExtraerIA.addActionListener(e -> extraerConIA());
+        btnImprimir.addActionListener(e -> imprimir());
         tabla.getSelectionModel().addListSelectionListener(this::alSeleccionarFila);
     }
 
@@ -368,6 +371,37 @@ public class ReservaController extends JPanel {
         cmbHoraFin.setSelectedIndex(0);
         listCategorias.clearSelection();
         tabla.clearSelection();
+    }
+
+    private void imprimir() {
+        try {
+            report.ReportTable reportTabla = new report.ReportTable(
+                    java.util.List.of("Id", "Actividad", "Fecha", "Horario", "Recursos", "Estado"));
+            for (int i = 0; i < modeloTabla.getRowCount(); i++) {
+                reportTabla.agregarFila(
+                        String.valueOf(modeloTabla.getValueAt(i, 0)),
+                        String.valueOf(modeloTabla.getValueAt(i, 1)),
+                        String.valueOf(modeloTabla.getValueAt(i, 2)),
+                        String.valueOf(modeloTabla.getValueAt(i, 3)),
+                        String.valueOf(modeloTabla.getValueAt(i, 4)),
+                        String.valueOf(modeloTabla.getValueAt(i, 5)));
+            }
+            String usuario = SessionManager.getInstancia().getUsuarioActual() != null
+                    ? SessionManager.getInstancia().getUsuarioActual().getId() : "";
+            report.ReportHeader header = new report.ReportHeader("Mis Reservas", usuario, null);
+            JFileChooser selector = new JFileChooser();
+            selector.setDialogTitle("Guardar reporte PDF");
+            selector.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+            selector.setSelectedFile(new java.io.File("mis_reservas.pdf"));
+            selector.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF", "pdf"));
+            if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+            String ruta = selector.getSelectedFile().getAbsolutePath();
+            if (!ruta.toLowerCase().endsWith(".pdf")) ruta += ".pdf";
+            new report.PdfReportService().generarReporteTabla(ruta, header, reportTabla);
+            mostrarMensaje("Reporte generado: " + ruta);
+        } catch (Exception ex) {
+            mostrarError("Error al generar el reporte: " + ex.getMessage());
+        }
     }
 
     private void mostrarMensaje(String m) { JOptionPane.showMessageDialog(this, m); }
