@@ -48,8 +48,9 @@ public class DisponibilidadService {
         if(categoria == null || fecha == null || inicio == null || fin == null){
             throw new IllegalArgumentException("Los parámetros no pueden ser nulos");
         }
-        List<Recurso> recursos = recursoRepository.listar();
-        recursos.removeIf(recurso -> !Objects.equals(recurso.getCategoria(), categoria));
+        List<Recurso> recursos = recursoRepository.listar().stream()
+                .filter(recurso -> Objects.equals(recurso.getCategoria(), categoria))
+                .collect(java.util.stream.Collectors.toList());
 
          for (Recurso recurso : recursos) {
             if (estaDisponible(recurso, fecha, inicio, fin)) {
